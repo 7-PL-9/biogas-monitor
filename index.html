@@ -368,6 +368,288 @@
     height: 320px;
   }
 
+  /* ---------- Login overlay ---------- */
+
+  .login-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+  }
+
+  .login-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
+    padding: 36px 32px;
+    width: 100%;
+    max-width: 380px;
+    text-align: center;
+  }
+
+  .login-logos {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .login-logos .logo-box { width: 56px; height: 56px; box-shadow: none; border: 1px solid var(--line); }
+
+  .login-card h2 {
+    margin: 0 0 6px;
+    color: var(--primary-dark);
+    font-size: 19px;
+    font-weight: 700;
+  }
+
+  .login-subtitle {
+    margin: 0 0 22px;
+    color: var(--muted);
+    font-size: 13.5px;
+  }
+
+  .login-label {
+    display: block;
+    text-align: left;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .login-input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-size: 14.5px;
+    margin-bottom: 16px;
+    background: var(--bg);
+    color: var(--ink);
+  }
+
+  .login-input:focus {
+    outline: none;
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 3px var(--primary-tint);
+  }
+
+  .login-btn { width: 100%; justify-content: center; }
+
+  .login-error {
+    display: none;
+    color: var(--red);
+    font-size: 12.5px;
+    font-weight: 600;
+    margin: 12px 0 0;
+  }
+
+  .login-note {
+    margin: 16px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  /* ---------- Device & facility gallery ---------- */
+
+  .gallery-panel { margin-bottom: 24px; }
+
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 16px;
+  }
+
+  .gallery-item { margin: 0; }
+
+  .gallery-photo {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    background: var(--primary-tint);
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .gallery-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .no-photo-hint {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: var(--primary-dark);
+    opacity: 0.55;
+    font-size: 11px;
+    text-align: center;
+    padding: 10px;
+  }
+
+  .gallery-photo.no-photo .no-photo-hint { display: flex; }
+
+  .gallery-item figcaption {
+    margin-top: 8px;
+    font-size: 12.5px;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  @media (max-width: 700px) {
+    .gallery-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 420px) {
+    .gallery-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ---------- Tabs ---------- */
+
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 22px;
+    border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    background: none;
+    border: none;
+    padding: 10px 6px;
+    margin-right: 20px;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .tab-btn:hover { color: var(--primary-dark); }
+
+  .tab-btn.active {
+    color: var(--primary-dark);
+    border-bottom-color: var(--primary);
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ---------- History table ---------- */
+
+  .history-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 18px 0;
+    flex-wrap: wrap;
+  }
+
+  .history-filter-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+
+  .history-select {
+    padding: 9px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 13.5px;
+    background: var(--surface);
+    color: var(--ink);
+  }
+
+  .history-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+  }
+
+  .history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .history-table th,
+  .history-table td {
+    padding: 10px 14px;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  .history-table thead th {
+    background: var(--primary-tint);
+    color: var(--primary-dark);
+    font-weight: 700;
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .history-table tbody tr:nth-child(even) { background: var(--bg); }
+  .history-table tbody tr:hover { background: var(--primary-tint); }
+  .history-table .badge { font-size: 10px; }
+
+  /* ---------- About / glossary ---------- */
+
+  .about-subtitle {
+    margin: 24px 0 12px;
+    color: var(--primary-dark);
+    font-size: 15.5px;
+    font-weight: 700;
+  }
+
+  .glossary-list {
+    margin: 0;
+    display: grid;
+    grid-template-columns: 190px 1fr;
+    gap: 12px 18px;
+    font-size: 14px;
+  }
+
+  .glossary-list dt { font-weight: 700; color: var(--ink); }
+  .glossary-list dd { margin: 0; color: #3c4a42; line-height: 1.6; }
+
+  .status-legend {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .status-legend li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 14px;
+    color: #3c4a42;
+    line-height: 1.5;
+  }
+
+  .status-legend .badge { flex-shrink: 0; margin-top: 2px; }
+
+  @media (max-width: 650px) {
+    .glossary-list { grid-template-columns: 1fr; }
+  }
+
   /* ---------- Footer ---------- */
 
   footer {
@@ -407,6 +689,33 @@
 
 <body class="lang-en">
 
+<!-- Login overlay: basic front-end access gate — see SECURITY NOTE in the script below -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-card">
+    <div class="login-logos">
+      <div class="logo-box">
+        <img src="images/rua-logo.png" alt="Royal University of Agriculture logo">
+      </div>
+      <div class="logo-box">
+        <img src="images/btc-biogas-logo.png" alt="Biogas Technology and Innovation Center logo">
+      </div>
+    </div>
+
+    <h2 data-i18n="loginTitle">Sign in to continue</h2>
+    <p class="login-subtitle" data-i18n="loginSubtitle">RUA Biogas Monitoring — FABE Laboratory</p>
+
+    <label class="login-label" for="loginPassword" data-i18n="passwordLabel">Password</label>
+    <input type="password" id="loginPassword" class="login-input" data-i18n-placeholder="passwordPlaceholder" placeholder="Enter password">
+
+    <button type="button" class="btn btn-solid login-btn" onclick="attemptLogin()" data-i18n="loginButton">Login</button>
+
+    <p class="login-error" id="loginError" data-i18n="loginError">Incorrect password. Please try again.</p>
+    <p class="login-note" data-i18n="loginNote">Basic access screen for the lab dashboard — not a secure authentication system. Change the password in the page source before sharing this link.</p>
+  </div>
+</div>
+
+<div id="dashboardRoot" style="display:none;">
+
 <!-- Header -->
 <header>
   <div class="header-inner">
@@ -441,6 +750,14 @@
 
 <!-- Main dashboard -->
 <main class="container">
+
+  <nav class="tabs" role="tablist" aria-label="Dashboard sections">
+    <button type="button" class="tab-btn active" data-tab="dashboard" onclick="switchTab('dashboard')" data-i18n="tabDashboard">Dashboard</button>
+    <button type="button" class="tab-btn" data-tab="history" onclick="switchTab('history')" data-i18n="tabHistory">History</button>
+    <button type="button" class="tab-btn" data-tab="about" onclick="switchTab('about')" data-i18n="tabAbout">About</button>
+  </nav>
+
+  <div class="tab-panel active" data-tab-panel="dashboard">
 
   <section class="toolbar">
     <button type="button" class="btn btn-outline" onclick="refreshTimestamp()">
@@ -489,6 +806,49 @@
       </dl>
     </div>
 
+  </section>
+
+  <section class="panel gallery-panel">
+    <h2 data-i18n="galleryTitle">Device &amp; Facility</h2>
+    <p class="overview-text" data-i18n="galleryIntro">
+      Photos of the sensor unit and the BTIC biogas digester at FABE Laboratory. Drop your own site photos into the images/ folder using the filenames below to replace these placeholders.
+    </p>
+    <div class="gallery-grid">
+
+      <figure class="gallery-item">
+        <div class="gallery-photo">
+          <img src="images/device-sensor-unit.jpg" alt="ESP32 sensor unit" onerror="this.style.display='none'; this.parentElement.classList.add('no-photo')">
+          <div class="no-photo-hint">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            <span>images/device-sensor-unit.jpg</span>
+          </div>
+        </div>
+        <figcaption data-i18n="galleryCaption1">Sensor unit — ESP32, RUA-Biogas-01</figcaption>
+      </figure>
+
+      <figure class="gallery-item">
+        <div class="gallery-photo">
+          <img src="images/digester-setup.jpg" alt="Biogas digester setup" onerror="this.style.display='none'; this.parentElement.classList.add('no-photo')">
+          <div class="no-photo-hint">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            <span>images/digester-setup.jpg</span>
+          </div>
+        </div>
+        <figcaption data-i18n="galleryCaption2">Small-scale biogas digester, FABE Laboratory</figcaption>
+      </figure>
+
+      <figure class="gallery-item">
+        <div class="gallery-photo">
+          <img src="images/btic-lab.jpg" alt="BTIC laboratory" onerror="this.style.display='none'; this.parentElement.classList.add('no-photo')">
+          <div class="no-photo-hint">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            <span>images/btic-lab.jpg</span>
+          </div>
+        </div>
+        <figcaption data-i18n="galleryCaption3">BTIC research team at work</figcaption>
+      </figure>
+
+    </div>
   </section>
 
   <h2 class="section-title" data-i18n="sensorSectionTitle">Live Sensor Dashboard</h2>
@@ -593,11 +953,98 @@
 
   </section>
 
+  </div><!-- /.tab-panel[dashboard] -->
+
+  <div class="tab-panel" data-tab-panel="history">
+    <section class="panel">
+      <h2 data-i18n="historyTitle">Reading History</h2>
+      <p class="overview-text" data-i18n="historyIntro">
+        Browse previously recorded sensor readings from this device. Use the filter to narrow the time range, or export the table as a CSV file.
+      </p>
+
+      <div class="history-controls">
+        <label class="history-filter-label" for="historyRange" data-i18n="historyRangeLabel">Show:</label>
+        <select id="historyRange" class="history-select" onchange="renderHistoryTable()">
+          <option value="24" data-i18n="rangeOption24h">Last 24 hours</option>
+          <option value="72" data-i18n="rangeOption3d">Last 3 days</option>
+          <option value="168" selected data-i18n="rangeOption7d">Last 7 days</option>
+        </select>
+
+        <button type="button" class="btn btn-solid" onclick="exportHistoryCSV()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M5 21h14"/></svg>
+          <span data-i18n="exportHistoryBtn">Export History (CSV)</span>
+        </button>
+      </div>
+
+      <div class="history-table-wrap">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th data-i18n="colTimestamp">Timestamp</th>
+              <th data-i18n="colMethane">Methane (%)</th>
+              <th data-i18n="colCo2">CO₂ (%)</th>
+              <th data-i18n="colH2s">H₂S (ppm)</th>
+              <th data-i18n="colTemp">Temp (°C)</th>
+              <th data-i18n="colPh">pH</th>
+              <th data-i18n="colPressure">Pressure (kPa)</th>
+              <th data-i18n="statusLabel">Status</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div class="tab-panel" data-tab-panel="about">
+    <section class="panel">
+      <h2 data-i18n="aboutTitle">About This Dashboard</h2>
+      <p class="overview-text" data-i18n="aboutIntro">
+        This dashboard helps researchers and students at FABE Laboratory monitor the quality and safety of a small-scale biogas digester in real time. The sections below explain what each sensor measures and what the status colors mean.
+      </p>
+
+      <h3 class="about-subtitle" data-i18n="aboutGlossaryTitle">Sensor Glossary</h3>
+      <dl class="glossary-list">
+        <dt data-i18n="methaneLabel">Methane</dt>
+        <dd data-i18n="glossaryMethane">The primary combustible component of biogas. Higher methane content means better fuel quality.</dd>
+
+        <dt data-i18n="co2Label">Carbon Dioxide</dt>
+        <dd data-i18n="glossaryCo2">The second-largest component of biogas. Higher CO₂ lowers the fuel's calorific value.</dd>
+
+        <dt data-i18n="h2sLabel">Hydrogen Sulphide</dt>
+        <dd data-i18n="glossaryH2s">A corrosive trace gas. Elevated levels can damage engines and pose a safety risk.</dd>
+
+        <dt data-i18n="tempLabel">Temperature</dt>
+        <dd data-i18n="glossaryTemp">Digester temperature affects how actively bacteria break down organic matter.</dd>
+
+        <dt data-i18n="phLabel">pH Level</dt>
+        <dd data-i18n="glossaryPh">Indicates how acidic or alkaline the digester is. A stable pH supports healthy digestion.</dd>
+
+        <dt data-i18n="pressureLabel">Gas Pressure</dt>
+        <dd data-i18n="glossaryPressure">The pressure of gas inside the storage system, relevant to safe delivery to end use.</dd>
+      </dl>
+
+      <h3 class="about-subtitle" data-i18n="aboutStatusTitle">Status Legend</h3>
+      <ul class="status-legend">
+        <li><span class="badge badge-normal" data-i18n="statusNormal">Normal</span><span data-i18n="statusNormalDesc">Reading is within the healthy operating range for this parameter.</span></li>
+        <li><span class="badge badge-warning" data-i18n="statusWarning">Warning</span><span data-i18n="statusWarningDesc">Reading is outside the normal range and should be monitored closely.</span></li>
+        <li><span class="badge badge-critical" data-i18n="statusCritical">Critical</span><span data-i18n="statusCriticalDesc">Reading is far outside the safe range — immediate attention is recommended.</span></li>
+      </ul>
+
+      <h3 class="about-subtitle" data-i18n="aboutCreditsTitle">Project Credits</h3>
+      <p class="overview-text" data-i18n="aboutCreditsText">
+        This system was developed at the FABE Laboratory, Royal University of Agriculture, in collaboration with the Biogas Technology and Innovation Center (BTIC). Device RUA-Biogas-01 monitors a small-scale biogas digester powered by solar / 12V supply.
+      </p>
+    </section>
+  </div>
+
 </main>
 
 <footer data-i18n="footerText">
   © 2026 Royal University of Agriculture — IoT Biogas Monitoring Research Project
 </footer>
+
+</div><!-- /#dashboardRoot -->
 
 <script>
   /* ---------------------------------------------------------
@@ -642,7 +1089,51 @@
       phLegend: "pH",
       tempAxisTitle: "Temperature (°C)",
       phAxisTitle: "pH",
-      footerText: "© 2026 Royal University of Agriculture — IoT Biogas Monitoring Research Project"
+      footerText: "© 2026 Royal University of Agriculture — IoT Biogas Monitoring Research Project",
+      loginTitle: "Sign in to continue",
+      loginSubtitle: "RUA Biogas Monitoring — FABE Laboratory",
+      passwordLabel: "Password",
+      passwordPlaceholder: "Enter password",
+      loginButton: "Login",
+      loginError: "Incorrect password. Please try again.",
+      loginNote: "Basic access screen for the lab dashboard — not a secure authentication system. Change the password in the page source before sharing this link.",
+      galleryTitle: "Device & Facility",
+      galleryIntro: "Photos of the sensor unit and the BTIC biogas digester at FABE Laboratory. Drop your own site photos into the images/ folder using the filenames below to replace these placeholders.",
+      galleryCaption1: "Sensor unit — ESP32, RUA-Biogas-01",
+      galleryCaption2: "Small-scale biogas digester, FABE Laboratory",
+      galleryCaption3: "BTIC research team at work",
+      tabDashboard: "Dashboard",
+      tabHistory: "History",
+      tabAbout: "About",
+      historyTitle: "Reading History",
+      historyIntro: "Browse previously recorded sensor readings from this device. Use the filter to narrow the time range, or export the table as a CSV file.",
+      historyRangeLabel: "Show:",
+      rangeOption24h: "Last 24 hours",
+      rangeOption3d: "Last 3 days",
+      rangeOption7d: "Last 7 days",
+      exportHistoryBtn: "Export History (CSV)",
+      colTimestamp: "Timestamp",
+      colMethane: "Methane (%)",
+      colCo2: "CO₂ (%)",
+      colH2s: "H₂S (ppm)",
+      colTemp: "Temp (°C)",
+      colPh: "pH",
+      colPressure: "Pressure (kPa)",
+      aboutTitle: "About This Dashboard",
+      aboutIntro: "This dashboard helps researchers and students at FABE Laboratory monitor the quality and safety of a small-scale biogas digester in real time. The sections below explain what each sensor measures and what the status colors mean.",
+      aboutGlossaryTitle: "Sensor Glossary",
+      glossaryMethane: "The primary combustible component of biogas. Higher methane content means better fuel quality.",
+      glossaryCo2: "The second-largest component of biogas. Higher CO₂ lowers the fuel's calorific value.",
+      glossaryH2s: "A corrosive trace gas. Elevated levels can damage engines and pose a safety risk.",
+      glossaryTemp: "Digester temperature affects how actively bacteria break down organic matter.",
+      glossaryPh: "Indicates how acidic or alkaline the digester is. A stable pH supports healthy digestion.",
+      glossaryPressure: "The pressure of gas inside the storage system, relevant to safe delivery to end use.",
+      aboutStatusTitle: "Status Legend",
+      statusNormalDesc: "Reading is within the healthy operating range for this parameter.",
+      statusWarningDesc: "Reading is outside the normal range and should be monitored closely.",
+      statusCriticalDesc: "Reading is far outside the safe range — immediate attention is recommended.",
+      aboutCreditsTitle: "Project Credits",
+      aboutCreditsText: "This system was developed at the FABE Laboratory, Royal University of Agriculture, in collaboration with the Biogas Technology and Innovation Center (BTIC). Device RUA-Biogas-01 monitors a small-scale biogas digester powered by solar / 12V supply."
     },
     km: {
       appTitle: "ប្រព័ន្ធត្រួតពិនិត្យគុណភាពឧស្ម័នជីវឧស្ម័នតាមអ៊ីនធឺណិតវត្ថុ",
@@ -682,11 +1173,77 @@
       phLegend: "pH",
       tempAxisTitle: "សីតុណ្ហភាព (°C)",
       phAxisTitle: "pH",
-      footerText: "© ២០២៦ សាកលវិទ្យាល័យភូមិន្ទកសិកម្ម — គម្រោងស្រាវជ្រាវត្រួតពិនិត្យជីវឧស្ម័នតាមអ៊ីនធឺណិតវត្ថុ"
+      footerText: "© ២០២៦ សាកលវិទ្យាល័យភូមិន្ទកសិកម្ម — គម្រោងស្រាវជ្រាវត្រួតពិនិត្យជីវឧស្ម័នតាមអ៊ីនធឺណិតវត្ថុ",
+      loginTitle: "ចូលប្រើប្រាស់ប្រព័ន្ធ",
+      loginSubtitle: "ប្រព័ន្ធត្រួតពិនិត្យជីវឧស្ម័ន RUA — មន្ទីរពិសោធន៍ FABE",
+      passwordLabel: "ពាក្យសម្ងាត់",
+      passwordPlaceholder: "បញ្ចូលពាក្យសម្ងាត់",
+      loginButton: "ចូលប្រើប្រាស់",
+      loginError: "ពាក្យសម្ងាត់មិនត្រឹមត្រូវ។ សូមព្យាយាមម្តងទៀត។",
+      loginNote: "នេះគ្រាន់តែជាផ្ទាំងចូលប្រើប្រាស់សាមញ្ញសម្រាប់ផ្ទាំងគ្រប់គ្រងមន្ទីរពិសោធន៍ មិនមែនជាប្រព័ន្ធផ្ទៀងផ្ទាត់សុវត្ថិភាពពិតប្រាកដទេ។ សូមផ្លាស់ប្តូរពាក្យសម្ងាត់នៅក្នុងកូដទំព័រ មុននឹងចែករំលែកតំណនេះ។",
+      galleryTitle: "ឧបករណ៍ និងទីតាំង",
+      galleryIntro: "រូបថតនៃឧបករណ៍ចាប់សញ្ញា និងឧបករណ៍រំលាយជីវឧស្ម័ន BTIC នៅមន្ទីរពិសោធន៍ FABE។ សូមដាក់រូបថតរបស់អ្នកនៅក្នុងថត images/ ដោយប្រើឈ្មោះឯកសារខាងក្រោម ដើម្បីជំនួសរូបទាំងនេះ។",
+      galleryCaption1: "ឧបករណ៍ចាប់សញ្ញា — ESP32, RUA-Biogas-01",
+      galleryCaption2: "ឧបករណ៍រំលាយជីវឧស្ម័នខ្នាតតូច មន្ទីរពិសោធន៍ FABE",
+      galleryCaption3: "ក្រុមការងារស្រាវជ្រាវ BTIC កំពុងបំពេញការងារ",
+      tabDashboard: "ផ្ទាំងគ្រប់គ្រង",
+      tabHistory: "ប្រវត្តិទិន្នន័យ",
+      tabAbout: "អំពីប្រព័ន្ធ",
+      historyTitle: "ប្រវត្តិការអាន",
+      historyIntro: "មើលទិន្នន័យឧបករណ៍ចាប់សញ្ញាដែលបានកត់ត្រាពីមុនរបស់ឧបករណ៍នេះ។ ប្រើតម្រងដើម្បីកំណត់ជួរពេលវេលា ឬនាំចេញតារាងជាឯកសារ CSV។",
+      historyRangeLabel: "បង្ហាញ៖",
+      rangeOption24h: "24 ម៉ោងចុងក្រោយ",
+      rangeOption3d: "3 ថ្ងៃចុងក្រោយ",
+      rangeOption7d: "7 ថ្ងៃចុងក្រោយ",
+      exportHistoryBtn: "នាំចេញប្រវត្តិ (CSV)",
+      colTimestamp: "ពេលវេលា",
+      colMethane: "ឧស្ម័នមេតាន (%)",
+      colCo2: "កាបូនឌីអុកស៊ីត (%)",
+      colH2s: "អ៊ីដ្រូសែនស៊ុលហ្វីត (ppm)",
+      colTemp: "សីតុណ្ហភាព (°C)",
+      colPh: "pH",
+      colPressure: "សម្ពាធ (kPa)",
+      aboutTitle: "អំពីផ្ទាំងគ្រប់គ្រងនេះ",
+      aboutIntro: "ផ្ទាំងគ្រប់គ្រងនេះជួយអ្នកស្រាវជ្រាវ និងនិស្សិតនៅមន្ទីរពិសោធន៍ FABE ត្រួតពិនិត្យគុណភាព និងសុវត្ថិភាពនៃឧបករណ៍រំលាយជីវឧស្ម័នខ្នាតតូចជាក់ស្តែង។ ផ្នែកខាងក្រោមពន្យល់ពីអ្វីដែលឧបករណ៍ចាប់សញ្ញានីមួយៗវាស់ និងន័យនៃពណ៌ស្ថានភាព។",
+      aboutGlossaryTitle: "វចនានុក្រមឧបករណ៍ចាប់សញ្ញា",
+      glossaryMethane: "សមាសធាតុឆាបឆេះសំខាន់របស់ជីវឧស្ម័ន។ កម្រិតមេតានខ្ពស់មានន័យថាគុណភាពឥន្ធនៈប្រសើរជាង។",
+      glossaryCo2: "សមាសធាតុធំទីពីរនៃជីវឧស្ម័ន។ CO₂ ខ្ពស់បន្ថយតម្លៃកាឡូរីនៃឥន្ធនៈ។",
+      glossaryH2s: "ឧស្ម័នដែលបង្កការច្រេះ។ កម្រិតខ្ពស់អាចបង្កការខូចខាតដល់ម៉ាស៊ីន និងបង្កគ្រោះថ្នាក់សុវត្ថិភាព។",
+      glossaryTemp: "សីតុណ្ហភាពក្នុងឧបករណ៍រំលាយប៉ះពាល់ដល់សកម្មភាពបាក់តេរីក្នុងការបំបែកសារធាតុសរីរាង្គ។",
+      glossaryPh: "បង្ហាញពីកម្រិតអាស៊ីត ឬអាល់កាឡាំងនៃប្រព័ន្ធរំលាយ។ pH ស្ថិតស្ថេរជួយដល់ការរំលាយដែលមានសុខភាពល្អ។",
+      glossaryPressure: "សម្ពាធនៃឧស្ម័នក្នុងប្រព័ន្ធផ្ទុក ដែលទាក់ទងនឹងសុវត្ថិភាពក្នុងការប្រើប្រាស់។",
+      aboutStatusTitle: "តារាងស្ថានភាព",
+      statusNormalDesc: "តម្លៃស្ថិតក្នុងជួររង្វាស់ដែលមានសុខភាពល្អសម្រាប់ប៉ារ៉ាម៉ែត្រនេះ។",
+      statusWarningDesc: "តម្លៃលើសពីជួររង្វាស់ធម្មតា គួរតែតាមដានយ៉ាងជិតស្និទ្ធ។",
+      statusCriticalDesc: "តម្លៃលើសពីជួររង្វាស់សុវត្ថិភាពយ៉ាងខ្លាំង — គួរត្រូវការការយកចិត្តទុកដាក់ជាបន្ទាន់។",
+      aboutCreditsTitle: "កិត្តិយសគម្រោង",
+      aboutCreditsText: "ប្រព័ន្ធនេះត្រូវបានបង្កើតឡើងនៅមន្ទីរពិសោធន៍ FABE សាកលវិទ្យាល័យភូមិន្ទកសិកម្ម ដោយសហការជាមួយមជ្ឈមណ្ឌលបច្ចេកវិទ្យា និងនវានុវត្តន៍ជីវឧស្ម័ន (BTIC)។ ឧបករណ៍ RUA-Biogas-01 ត្រួតពិនិត្យឧបករណ៍រំលាយជីវឧស្ម័នខ្នាតតូចដែលដំណើរការដោយប្រភពថាមពលពន្លឺព្រះអាទិត្យ/12V។"
     }
   };
 
   let currentLang = 'en';
+
+  /* ---------------------------------------------------------
+     SECURITY NOTE: this is a basic front-end access gate only.
+     The password below is visible to anyone who views the page
+     source, so this does NOT protect sensitive data. It simply
+     keeps casual visitors off the dashboard during a demo or
+     presentation. For real protection, put this page behind
+     server-side authentication instead.
+  --------------------------------------------------------- */
+  const SITE_PASSWORD = "biogas2026"; // change this before sharing the link
+
+  function attemptLogin() {
+    const input = document.getElementById('loginPassword').value;
+    const errorEl = document.getElementById('loginError');
+    if (input === SITE_PASSWORD) {
+      document.getElementById('loginOverlay').style.display = 'none';
+      document.getElementById('dashboardRoot').style.display = '';
+      errorEl.style.display = 'none';
+    } else {
+      errorEl.style.display = 'block';
+    }
+  }
 
   /* ---------------------------------------------------------
      Optimal ranges used to compute the status badge.
@@ -784,7 +1341,13 @@
       if (t[lang][key] !== undefined) el.textContent = t[lang][key];
     });
 
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(function (el) {
+      const key = el.dataset.i18nPlaceholder;
+      if (t[lang][key] !== undefined) el.placeholder = t[lang][key];
+    });
+
     renderBadgesAndTrends();
+    renderHistoryTable();
     updateChartLanguage();
   }
 
@@ -835,6 +1398,123 @@
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  }
+
+  /* ---------------------------------------------------------
+     Reading history (demo data — replace with real historical
+     readings from your backend/database as needed)
+  --------------------------------------------------------- */
+  function generateDemoHistory() {
+    const rows = [];
+    const now = new Date();
+    for (let i = 0; i < 28; i++) {
+      const hoursAgo = i * 6; // one reading every 6 hours, 28 entries = 7 days
+      const ts = new Date(now.getTime() - hoursAgo * 3600 * 1000);
+      rows.push({
+        timestamp: ts,
+        methane: +(60 + Math.sin(i / 3) * 5).toFixed(1),
+        co2: +(38 - Math.sin(i / 3) * 4).toFixed(1),
+        h2s: Math.round(150 + Math.sin(i / 4) * 70),
+        temperature: +(34 + Math.sin(i / 5) * 3.5).toFixed(1),
+        ph: +(7.0 + Math.sin(i / 6) * 0.3).toFixed(2),
+        pressure: +(2.4 + Math.sin(i / 4) * 0.9).toFixed(2)
+      });
+    }
+    return rows;
+  }
+
+  const demoHistory = generateDemoHistory();
+
+  function worstStatus(keys) {
+    if (keys.indexOf('statusCritical') !== -1) return 'statusCritical';
+    if (keys.indexOf('statusWarning') !== -1) return 'statusWarning';
+    return 'statusNormal';
+  }
+
+  function formatHistoryDate(date) {
+    const locale = currentLang === 'km' ? 'km-KH' : 'en-US';
+    return date.toLocaleString(locale, { dateStyle: 'medium', timeStyle: 'short' });
+  }
+
+  function historyRowStatus(r) {
+    return worstStatus([
+      getStatusKey('methane', r.methane),
+      getStatusKey('co2', r.co2),
+      getStatusKey('h2s', r.h2s),
+      getStatusKey('temperature', r.temperature),
+      getStatusKey('ph', r.ph),
+      getStatusKey('pressure', r.pressure)
+    ]);
+  }
+
+  function filteredHistory() {
+    const maxAgeHours = parseInt(document.getElementById('historyRange').value, 10);
+    const now = new Date();
+    return demoHistory.filter(function (r) {
+      return (now - r.timestamp) <= maxAgeHours * 3600 * 1000;
+    });
+  }
+
+  function renderHistoryTable() {
+    const tbody = document.getElementById('historyTableBody');
+    if (!tbody) return;
+    const rows = filteredHistory();
+    tbody.innerHTML = '';
+
+    rows.forEach(function (r) {
+      const worst = historyRowStatus(r);
+      const tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' + formatHistoryDate(r.timestamp) + '</td>' +
+        '<td>' + r.methane + '</td>' +
+        '<td>' + r.co2 + '</td>' +
+        '<td>' + r.h2s + '</td>' +
+        '<td>' + r.temperature + '</td>' +
+        '<td>' + r.ph + '</td>' +
+        '<td>' + r.pressure + '</td>' +
+        '<td><span class="' + badgeClass(worst) + '">' + t[currentLang][worst] + '</span></td>';
+      tbody.appendChild(tr);
+    });
+  }
+
+  function exportHistoryCSV() {
+    const tr = t[currentLang];
+    const rows = filteredHistory();
+
+    const header = [
+      tr.colTimestamp, tr.colMethane, tr.colCo2, tr.colH2s, tr.colTemp, tr.colPh, tr.colPressure, tr.statusLabel
+    ];
+
+    const lines = rows.map(function (r) {
+      const worst = historyRowStatus(r);
+      return [
+        formatHistoryDate(r.timestamp), r.methane, r.co2, r.h2s, r.temperature, r.ph, r.pressure, tr[worst]
+      ].join(',');
+    });
+
+    const csv = [header.join(',')].concat(lines).join('\n');
+    const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'biogas-history-' + Date.now() + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  /* ---------------------------------------------------------
+     Tab navigation
+  --------------------------------------------------------- */
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(function (btn) {
+      btn.classList.toggle('active', btn.dataset.tab === tab);
+    });
+    document.querySelectorAll('.tab-panel').forEach(function (panel) {
+      panel.classList.toggle('active', panel.dataset.tabPanel === tab);
+    });
+    if (tab === 'history') renderHistoryTable();
   }
 
   /* ---------------------------------------------------------
@@ -929,8 +1609,13 @@
   /* ---------------------------------------------------------
      Init
   --------------------------------------------------------- */
+  document.getElementById('loginPassword').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') attemptLogin();
+  });
+
   refreshTimestamp();
   renderBadgesAndTrends();
+  renderHistoryTable();
 </script>
 
 </body>
