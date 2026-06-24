@@ -650,6 +650,79 @@
     .glossary-list { grid-template-columns: 1fr; }
   }
 
+  /* ---------- Biogas knowledge content ---------- */
+
+  .process-steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .process-steps li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    align-items: baseline;
+    font-size: 14px;
+    color: #3c4a42;
+    line-height: 1.6;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed var(--line);
+  }
+
+  .process-steps li:last-child { border-bottom: none; padding-bottom: 0; }
+
+  .process-steps li strong {
+    flex: 0 0 100%;
+    color: var(--primary-dark);
+    font-weight: 700;
+    font-size: 14.5px;
+  }
+
+  .fact-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 14px;
+    color: #3c4a42;
+    line-height: 1.6;
+  }
+
+  .fact-list li {
+    padding-left: 22px;
+    position: relative;
+  }
+
+  .fact-list li::before {
+    content: "●";
+    position: absolute;
+    left: 0;
+    top: 6px;
+    color: var(--primary);
+    font-size: 9px;
+  }
+
+  .safety-list li::before {
+    content: "!";
+    color: white;
+    background: var(--amber);
+    font-size: 10px;
+    font-weight: 800;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 3px;
+  }
+
   /* ---------- Footer ---------- */
 
   footer {
@@ -754,6 +827,7 @@
   <nav class="tabs" role="tablist" aria-label="Dashboard sections">
     <button type="button" class="tab-btn active" data-tab="dashboard" onclick="switchTab('dashboard')" data-i18n="tabDashboard">Dashboard</button>
     <button type="button" class="tab-btn" data-tab="history" onclick="switchTab('history')" data-i18n="tabHistory">History</button>
+    <button type="button" class="tab-btn" data-tab="learn" onclick="switchTab('learn')" data-i18n="tabLearn">Learn</button>
     <button type="button" class="tab-btn" data-tab="about" onclick="switchTab('about')" data-i18n="tabAbout">About</button>
   </nav>
 
@@ -993,6 +1067,58 @@
           <tbody id="historyTableBody"></tbody>
         </table>
       </div>
+    </section>
+  </div>
+
+  <div class="tab-panel" data-tab-panel="learn">
+    <section class="panel">
+      <h2 data-i18n="learnTitle">What Is Biogas?</h2>
+      <p class="overview-text" data-i18n="learnIntro">
+        Biogas is a renewable fuel produced when organic matter — such as animal manure, food waste, or crop residue — breaks down in the absence of oxygen. It is mainly composed of methane (CH₄) and carbon dioxide (CO₂), with smaller amounts of hydrogen sulphide (H₂S), water vapour, and other trace gases.
+      </p>
+
+      <h3 class="about-subtitle" data-i18n="learnProcessTitle">How Anaerobic Digestion Works</h3>
+      <ol class="process-steps">
+        <li>
+          <strong data-i18n="stage1Title">1. Hydrolysis</strong>
+          <span data-i18n="stage1Desc">Complex organic matter (carbohydrates, proteins, fats) is broken down into simpler sugars, amino acids, and fatty acids.</span>
+        </li>
+        <li>
+          <strong data-i18n="stage2Title">2. Acidogenesis</strong>
+          <span data-i18n="stage2Desc">These simpler compounds are fermented into volatile fatty acids, alcohols, carbon dioxide, and hydrogen.</span>
+        </li>
+        <li>
+          <strong data-i18n="stage3Title">3. Acetogenesis</strong>
+          <span data-i18n="stage3Desc">Volatile fatty acids are converted into acetic acid, along with additional carbon dioxide and hydrogen.</span>
+        </li>
+        <li>
+          <strong data-i18n="stage4Title">4. Methanogenesis</strong>
+          <span data-i18n="stage4Desc">Methanogenic microorganisms convert acetic acid, hydrogen, and carbon dioxide into methane — the main fuel component of biogas.</span>
+        </li>
+      </ol>
+
+      <h3 class="about-subtitle" data-i18n="learnBenefitsTitle">Why Biogas Matters</h3>
+      <ul class="fact-list">
+        <li data-i18n="benefit1">Provides renewable energy for cooking, lighting, and electricity generation.</li>
+        <li data-i18n="benefit2">Reduces dependence on firewood and charcoal, helping to slow deforestation.</li>
+        <li data-i18n="benefit3">Captures methane that would otherwise escape into the atmosphere from untreated manure, reducing greenhouse gas emissions.</li>
+        <li data-i18n="benefit4">Produces nutrient-rich digestate that can be used as organic fertilizer.</li>
+        <li data-i18n="benefit5">Helps farms and households manage livestock and agricultural waste safely.</li>
+        <li data-i18n="benefit6">Supports rural energy independence, an important goal for Cambodia's agriculture sector.</li>
+      </ul>
+
+      <h3 class="about-subtitle" data-i18n="learnFeedstockTitle">Common Feedstocks</h3>
+      <p class="overview-text" data-i18n="learnFeedstockText">
+        Small-scale digesters like RUA-Biogas-01 are commonly fed with cattle or pig manure, poultry litter, food waste, and crop residues. Mixing feedstocks and maintaining a steady feeding schedule generally produces more stable gas output.
+      </p>
+
+      <h3 class="about-subtitle" data-i18n="learnSafetyTitle">Safety Tips</h3>
+      <ul class="fact-list safety-list">
+        <li data-i18n="safety1">Biogas is flammable — keep it away from open flames, sparks, and smoking areas.</li>
+        <li data-i18n="safety2">Hydrogen sulphide (H₂S) is toxic at high concentrations — ensure good ventilation when working near the digester or gas storage.</li>
+        <li data-i18n="safety3">Check fittings and storage bags regularly for leaks, especially after maintenance.</li>
+        <li data-i18n="safety4">Never enter an enclosed digester chamber without ventilating it first — gas can displace breathable oxygen.</li>
+      </ul>
     </section>
   </div>
 
