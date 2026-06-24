@@ -175,6 +175,15 @@
     box-shadow: 0 0 0 3px var(--primary-tint);
   }
 
+  .status-pill.offline {
+    color: var(--red);
+  }
+
+  .status-pill.offline .status-dot {
+    background: var(--red);
+    box-shadow: 0 0 0 3px var(--red-tint);
+  }
+
   /* ---------- Layout ---------- */
 
   .container {
@@ -276,7 +285,7 @@
 
   .cards {
     display: grid;
-    grid-template-columns: repeat(6, minmax(170px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
     gap: 16px;
     margin-bottom: 24px;
   }
@@ -864,13 +873,13 @@
         <dd>RUA-Biogas-01</dd>
 
         <dt data-i18n="statusLabel">Status</dt>
-        <dd class="online-text" data-i18n="onlineValue">Online</dd>
+        <dd class="online-text" id="deviceStatusText" data-i18n="onlineValue">Online</dd>
 
         <dt data-i18n="lastUpdateLabel">Last Update</dt>
         <dd id="lastUpdate">—</dd>
 
         <dt data-i18n="wifiLabel">Wi-Fi Signal</dt>
-        <dd id="wifiSignal">-62 dBm</dd>
+        <dd id="wifiSignal">—</dd>
 
         <dt data-i18n="locationLabel">Location</dt>
         <dd>FABE Laboratory</dd>
@@ -935,7 +944,7 @@
         <span class="badge" id="methaneBadge"></span>
       </div>
       <div class="value-row">
-        <div class="value" id="methane">61.5</div>
+        <div class="value" id="methane">—</div>
         <span class="trend" id="methaneTrend"></span>
       </div>
       <div class="unit">% CH₄</div>
@@ -948,7 +957,7 @@
         <span class="badge" id="co2Badge"></span>
       </div>
       <div class="value-row">
-        <div class="value" id="co2">37.8</div>
+        <div class="value" id="co2">—</div>
         <span class="trend" id="co2Trend"></span>
       </div>
       <div class="unit">% CO₂</div>
@@ -961,7 +970,7 @@
         <span class="badge" id="h2sBadge"></span>
       </div>
       <div class="value-row">
-        <div class="value" id="h2s">145</div>
+        <div class="value" id="h2s">—</div>
         <span class="trend" id="h2sTrend"></span>
       </div>
       <div class="unit">ppm H₂S</div>
@@ -974,11 +983,24 @@
         <span class="badge" id="temperatureBadge"></span>
       </div>
       <div class="value-row">
-        <div class="value" id="temperature">35.2</div>
+        <div class="value" id="temperature">—</div>
         <span class="trend" id="temperatureTrend"></span>
       </div>
       <div class="unit">°C</div>
       <div class="range-caption"><span data-i18n="optimalRangeLabel">Optimal range:</span> 30–38 °C</div>
+    </article>
+
+    <article class="card" data-key="humidity">
+      <div class="card-head">
+        <h3 data-i18n="humidityLabel">Humidity</h3>
+        <span class="badge" id="humidityBadge"></span>
+      </div>
+      <div class="value-row">
+        <div class="value" id="humidity">—</div>
+        <span class="trend" id="humidityTrend"></span>
+      </div>
+      <div class="unit">% RH</div>
+      <div class="range-caption"><span data-i18n="optimalRangeLabel">Typical range:</span> 20–90% RH</div>
     </article>
 
     <article class="card" data-key="ph">
@@ -987,7 +1009,7 @@
         <span class="badge" id="phBadge"></span>
       </div>
       <div class="value-row">
-        <div class="value" id="ph">7.10</div>
+        <div class="value" id="ph">—</div>
         <span class="trend" id="phTrend"></span>
       </div>
       <div class="unit">pH</div>
@@ -1000,7 +1022,7 @@
         <span class="badge" id="pressureBadge"></span>
       </div>
       <div class="value-row">
-        <div class="value" id="pressure">2.40</div>
+        <div class="value" id="pressure">—</div>
         <span class="trend" id="pressureTrend"></span>
       </div>
       <div class="unit">kPa</div>
@@ -1019,7 +1041,7 @@
     </div>
 
     <div class="panel">
-      <h2 data-i18n="conditionChartTitle">Temperature &amp; pH Trend</h2>
+      <h2 data-i18n="conditionChartTitle">Temperature &amp; Humidity Trend</h2>
       <div class="chart-container">
         <canvas id="conditionChart"></canvas>
       </div>
@@ -1059,6 +1081,7 @@
               <th data-i18n="colCo2">CO₂ (%)</th>
               <th data-i18n="colH2s">H₂S (ppm)</th>
               <th data-i18n="colTemp">Temp (°C)</th>
+              <th data-i18n="colHumidity">Humidity (% RH)</th>
               <th data-i18n="colPh">pH</th>
               <th data-i18n="colPressure">Pressure (kPa)</th>
               <th data-i18n="statusLabel">Status</th>
@@ -1172,7 +1195,17 @@
 
 </div><!-- /#dashboardRoot -->
 
-<script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+  import {
+    getDatabase,
+    ref,
+    onValue,
+    query,
+    orderByChild,
+    limitToLast
+  } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+
   /* ---------------------------------------------------------
      Translations
   --------------------------------------------------------- */
@@ -1181,6 +1214,7 @@
       appTitle: "IoT Biogas Quality Monitoring System",
       appSubtitle: "Royal University of Agriculture",
       deviceOnline: "DEVICE ONLINE",
+      deviceOffline: "DEVICE OFFLINE",
       refreshBtn: "Refresh Timestamp",
       exportBtn: "Export Data (CSV)",
       overviewTitle: "System Overview",
@@ -1200,6 +1234,7 @@
       co2Label: "Carbon Dioxide",
       h2sLabel: "Hydrogen Sulphide",
       tempLabel: "Temperature",
+      humidityLabel: "Humidity",
       phLabel: "pH Level",
       pressureLabel: "Gas Pressure",
       optimalRangeLabel: "Optimal range:",
@@ -1207,13 +1242,15 @@
       statusWarning: "Warning",
       statusCritical: "Critical",
       gasChartTitle: "Gas Composition Trend",
-      conditionChartTitle: "Temperature & pH Trend",
+      conditionChartTitle: "Temperature & Humidity Trend",
       methaneLegend: "Methane (%)",
       co2Legend: "CO₂ (%)",
       h2sLegend: "H₂S (ppm)",
       tempLegend: "Temperature (°C)",
+      humidityLegend: "Humidity (% RH)",
       phLegend: "pH",
       tempAxisTitle: "Temperature (°C)",
+      humidityAxisTitle: "Humidity (% RH)",
       phAxisTitle: "pH",
       footerText: "© 2026 Royal University of Agriculture — IoT Biogas Monitoring Research Project",
       loginTitle: "Sign in to continue",
@@ -1243,6 +1280,7 @@
       colCo2: "CO₂ (%)",
       colH2s: "H₂S (ppm)",
       colTemp: "Temp (°C)",
+      colHumidity: "Humidity (% RH)",
       colPh: "pH",
       colPressure: "Pressure (kPa)",
       aboutTitle: "About This Dashboard",
@@ -1265,6 +1303,7 @@
       appTitle: "ប្រព័ន្ធត្រួតពិនិត្យគុណភាពឧស្ម័នជីវឧស្ម័នតាមអ៊ីនធឺណិតវត្ថុ",
       appSubtitle: "សាកលវិទ្យាល័យភូមិន្ទកសិកម្ម",
       deviceOnline: "ឧបករណ៍កំពុងដំណើរការ",
+      deviceOffline: "ឧបករណ៍មិនភ្ជាប់",
       refreshBtn: "ធ្វើបច្ចុប្បន្នភាពពេលវេលា",
       exportBtn: "នាំចេញទិន្នន័យ (CSV)",
       overviewTitle: "ទិដ្ឋភាពទូទៅប្រព័ន្ធ",
@@ -1284,6 +1323,7 @@
       co2Label: "កាបូនឌីអុកស៊ីត",
       h2sLabel: "អ៊ីដ្រូសែនស៊ុលហ្វីត",
       tempLabel: "សីតុណ្ហភាព",
+      humidityLabel: "សំណើម",
       phLabel: "កម្រិត pH",
       pressureLabel: "សម្ពាធឧស្ម័ន",
       optimalRangeLabel: "ជួររង្វាស់ល្អប្រសើរ៖",
@@ -1291,13 +1331,15 @@
       statusWarning: "ព្រមាន",
       statusCritical: "គ្រោះថ្នាក់",
       gasChartTitle: "និន្នាការសមាសភាគឧស្ម័ន",
-      conditionChartTitle: "និន្នាការសីតុណ្ហភាព និង pH",
+      conditionChartTitle: "និន្នាការសីតុណ្ហភាព និងសំណើម",
       methaneLegend: "ឧស្ម័នមេតាន (%)",
       co2Legend: "កាបូនឌីអុកស៊ីត (%)",
       h2sLegend: "អ៊ីដ្រូសែនស៊ុលហ្វីត (ppm)",
       tempLegend: "សីតុណ្ហភាព (°C)",
+      humidityLegend: "សំណើម (% RH)",
       phLegend: "pH",
       tempAxisTitle: "សីតុណ្ហភាព (°C)",
+      humidityAxisTitle: "សំណើម (% RH)",
       phAxisTitle: "pH",
       footerText: "© ២០២៦ សាកលវិទ្យាល័យភូមិន្ទកសិកម្ម — គម្រោងស្រាវជ្រាវត្រួតពិនិត្យជីវឧស្ម័នតាមអ៊ីនធឺណិតវត្ថុ",
       loginTitle: "ចូលប្រើប្រាស់ប្រព័ន្ធ",
@@ -1327,6 +1369,7 @@
       colCo2: "កាបូនឌីអុកស៊ីត (%)",
       colH2s: "អ៊ីដ្រូសែនស៊ុលហ្វីត (ppm)",
       colTemp: "សីតុណ្ហភាព (°C)",
+      colHumidity: "សំណើម (% RH)",
       colPh: "pH",
       colPressure: "សម្ពាធ (kPa)",
       aboutTitle: "អំពីផ្ទាំងគ្រប់គ្រងនេះ",
@@ -1349,399 +1392,540 @@
 
   let currentLang = 'en';
 
-  /* ---------------------------------------------------------
-     SECURITY NOTE: this is a basic front-end access gate only.
-     The password below is visible to anyone who views the page
-     source, so this does NOT protect sensitive data. It simply
-     keeps casual visitors off the dashboard during a demo or
-     presentation. For real protection, put this page behind
-     server-side authentication instead.
-  --------------------------------------------------------- */
-  const SITE_PASSWORD = "biogas2026"; // change this before sharing the link
+  /*
+    REQUIRED SETUP
+    1. Replace PASTE_YOUR_FIREBASE_WEB_API_KEY below.
+    2. Keep Realtime Database read access compatible with this dashboard.
+    3. The ESP32 writes under devices/RUA-Biogas-01/latest and /history.
+  */
+  const firebaseConfig = {
+    apiKey: "PASTE_YOUR_FIREBASE_WEB_API_KEY",
+    authDomain: "biogas-monitor-28b9d.firebaseapp.com",
+    databaseURL: "https://biogas-monitor-28b9d-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "biogas-monitor-28b9d",
+    storageBucket: "biogas-monitor-28b9d.firebasestorage.app",
+    messagingSenderId: "66212069229",
+    appId: "1:66212069229:web:527eecefe4df83c1b36464"
+  };
 
-  function attemptLogin() {
-    const input = document.getElementById('loginPassword').value;
-    const errorEl = document.getElementById('loginError');
-    if (input === SITE_PASSWORD) {
-      document.getElementById('loginOverlay').style.display = 'none';
-      document.getElementById('dashboardRoot').style.display = '';
-      errorEl.style.display = 'none';
-    } else {
-      errorEl.style.display = 'block';
-    }
-  }
+  const DEVICE_ID = "RUA-Biogas-01";
+  const OFFLINE_AFTER_MS = 120000;
 
-  /* ---------------------------------------------------------
-     Optimal ranges used to compute the status badge.
-     normal = healthy operating range for a mesophilic digester
-     warning = outside normal but not yet critical
-  --------------------------------------------------------- */
+  /*
+    This remains a basic front-end demo gate, not secure authentication.
+    Change it before publishing. Do not use the ESP32/Firebase password here.
+  */
+  const SITE_PASSWORD = "CHANGE_THIS_DASHBOARD_PASSWORD";
+
+  let latestReading = null;
+  let firebaseHistory = [];
+  let latestListenerStarted = false;
+  let historyListenerStarted = false;
+
   const RANGES = {
     methane:     { normal: [55, 70],   warning: [45, 75]   },
     co2:         { normal: [30, 45],   warning: [25, 50]   },
     h2s:         { normal: [0, 150],   warning: [150, 300] },
     temperature: { normal: [30, 38],   warning: [25, 42]   },
+    humidity:    { normal: [20, 90],   warning: [10, 95]   },
     ph:          { normal: [6.8, 7.3], warning: [6.5, 7.6] },
     pressure:    { normal: [1.5, 3.5], warning: [1.0, 4.5] }
   };
 
+  const FIELD_MAP = {
+    methane: ["ch4Percent", "methanePercent", "methane"],
+    co2: ["co2Percent", "co2"],
+    h2s: ["h2sPpm", "h2s"],
+    temperature: ["temperatureC", "temperature"],
+    humidity: ["humidityPercent", "humidity"],
+    ph: ["ph", "pH"],
+    pressure: ["pressureKpa", "pressureKPa", "pressure"]
+  };
+
+  function firstFinite(source, names) {
+    for (const name of names) {
+      const value = Number(source?.[name]);
+      if (Number.isFinite(value)) return value;
+    }
+    return null;
+  }
+
+  function numberText(value, decimals) {
+    return Number.isFinite(value) ? value.toFixed(decimals) : "—";
+  }
+
+  function readingTimestamp(reading) {
+    const raw = reading?.timestamp;
+    const number = Number(raw);
+    return Number.isFinite(number) ? number : null;
+  }
+
+  function formatDateTime(timestamp) {
+    if (!Number.isFinite(timestamp)) return "—";
+    const locale = currentLang === "km" ? "km-KH" : "en-US";
+    return new Date(timestamp).toLocaleString(locale, {
+      dateStyle: "medium",
+      timeStyle: "medium"
+    });
+  }
+
   function getStatusKey(key, value) {
-    const r = RANGES[key];
-    if (value >= r.normal[0] && value <= r.normal[1]) return 'statusNormal';
-    if (value >= r.warning[0] && value <= r.warning[1]) return 'statusWarning';
-    return 'statusCritical';
+    if (!Number.isFinite(value)) return null;
+    const range = RANGES[key];
+    if (!range) return null;
+    if (value >= range.normal[0] && value <= range.normal[1]) return "statusNormal";
+    if (value >= range.warning[0] && value <= range.warning[1]) return "statusWarning";
+    return "statusCritical";
   }
 
   function badgeClass(statusKey) {
-    if (statusKey === 'statusNormal') return 'badge badge-normal';
-    if (statusKey === 'statusWarning') return 'badge badge-warning';
-    return 'badge badge-critical';
+    if (statusKey === "statusNormal") return "badge badge-normal";
+    if (statusKey === "statusWarning") return "badge badge-warning";
+    if (statusKey === "statusCritical") return "badge badge-critical";
+    return "badge";
   }
 
-  function computeTrend(series) {
-    if (!series || series.length < 2) return '–';
-    const last = series[series.length - 1];
-    const prev = series[series.length - 2];
-    if (last > prev) return '▲';
-    if (last < prev) return '▼';
-    return '–';
+  function updateBadge(key, value) {
+    const badge = document.getElementById(key + "Badge");
+    if (!badge) return;
+    const statusKey = getStatusKey(key, value);
+    badge.className = badgeClass(statusKey);
+    badge.dataset.statusKey = statusKey || "";
+    badge.textContent = statusKey ? t[currentLang][statusKey] : "—";
   }
 
-  /* ---------------------------------------------------------
-     Demo time-series data (replace with live readings as needed)
-  --------------------------------------------------------- */
-  const timeLabels = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00"];
-  const methaneSeries = [58, 59, 60, 61, 61.5, 62];
-  const co2Series = [40, 39.5, 39, 38.5, 37.8, 37.2];
-  const h2sSeries = [170, 165, 160, 152, 145, 142];
-  const tempSeries = [33.8, 34.1, 34.6, 35.0, 35.2, 35.5];
-  const phSeries = [6.8, 6.9, 7.0, 7.0, 7.1, 7.1];
-
-  const sensorSeries = {
-    methane: methaneSeries,
-    co2: co2Series,
-    h2s: h2sSeries,
-    temperature: tempSeries,
-    ph: phSeries
-  };
-
-  /* ---------------------------------------------------------
-     Render status badges + trend arrows from current DOM values
-  --------------------------------------------------------- */
-  function renderBadgesAndTrends() {
-    Object.keys(RANGES).forEach(function (key) {
-      const valueEl = document.getElementById(key);
-      const badgeEl = document.getElementById(key + 'Badge');
-      const trendEl = document.getElementById(key + 'Trend');
-      if (!valueEl || !badgeEl) return;
-
-      const value = parseFloat(valueEl.textContent);
-      const statusKey = getStatusKey(key, value);
-      badgeEl.className = badgeClass(statusKey);
-      badgeEl.dataset.statusKey = statusKey;
-      badgeEl.textContent = t[currentLang][statusKey];
-
-      if (trendEl) {
-        trendEl.textContent = computeTrend(sensorSeries[key]);
-      }
-    });
+  function updateValue(id, value, decimals) {
+    const element = document.getElementById(id);
+    if (element) element.textContent = numberText(value, decimals);
+    updateBadge(id, value);
   }
 
-  /* ---------------------------------------------------------
-     Language switching
-  --------------------------------------------------------- */
-  function fontFamilyFor(lang) {
-    return lang === 'km' ? "'Noto Sans Khmer', sans-serif" : "'Inter', sans-serif";
-  }
+  function setDeviceStatus(isOnline) {
+    const pill = document.getElementById("deviceStatus");
+    const pillText = pill?.querySelector("span:last-child");
+    const infoText = document.getElementById("deviceStatusText");
+    const key = isOnline ? "deviceOnline" : "deviceOffline";
+    const label = t[currentLang][key] || (isOnline ? "DEVICE ONLINE" : "DEVICE OFFLINE");
 
-  function setLanguage(lang) {
-    currentLang = lang;
-    document.body.classList.toggle('lang-km', lang === 'km');
-    document.documentElement.lang = lang;
-
-    document.getElementById('btnLangEn').classList.toggle('active', lang === 'en');
-    document.getElementById('btnLangKm').classList.toggle('active', lang === 'km');
-
-    document.querySelectorAll('[data-i18n]').forEach(function (el) {
-      const key = el.dataset.i18n;
-      if (t[lang][key] !== undefined) el.textContent = t[lang][key];
-    });
-
-    document.querySelectorAll('[data-i18n-placeholder]').forEach(function (el) {
-      const key = el.dataset.i18nPlaceholder;
-      if (t[lang][key] !== undefined) el.placeholder = t[lang][key];
-    });
-
-    renderBadgesAndTrends();
-    renderHistoryTable();
-    updateChartLanguage();
-  }
-
-  function updateChartLanguage() {
-    const family = fontFamilyFor(currentLang);
-
-    gasChart.data.datasets[0].label = t[currentLang].methaneLegend;
-    gasChart.data.datasets[1].label = t[currentLang].co2Legend;
-    gasChart.data.datasets[2].label = t[currentLang].h2sLegend;
-    gasChart.options.font = { family: family };
-    gasChart.update();
-
-    conditionChart.data.datasets[0].label = t[currentLang].tempLegend;
-    conditionChart.data.datasets[1].label = t[currentLang].phLegend;
-    conditionChart.options.scales.temperatureAxis.title.text = t[currentLang].tempAxisTitle;
-    conditionChart.options.scales.phAxis.title.text = t[currentLang].phAxisTitle;
-    conditionChart.options.font = { family: family };
-    conditionChart.update();
-  }
-
-  /* ---------------------------------------------------------
-     Toolbar actions
-  --------------------------------------------------------- */
-  function refreshTimestamp() {
-    const locale = currentLang === 'km' ? 'km-KH' : 'en-US';
-    document.getElementById('lastUpdate').textContent = new Date().toLocaleString(locale);
-  }
-
-  function exportCSV() {
-    const tr = t[currentLang];
-    const rows = [
-      [tr.methaneLabel, document.getElementById('methane').textContent, '%'],
-      [tr.co2Label, document.getElementById('co2').textContent, '%'],
-      [tr.h2sLabel, document.getElementById('h2s').textContent, 'ppm'],
-      [tr.tempLabel, document.getElementById('temperature').textContent, '°C'],
-      [tr.phLabel, document.getElementById('ph').textContent, 'pH'],
-      [tr.pressureLabel, document.getElementById('pressure').textContent, 'kPa']
-    ];
-    const header = ['Parameter', 'Value', 'Unit'];
-    const csv = [header].concat(rows).map(function (r) { return r.join(','); }).join('\n');
-
-    const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'biogas-readings-' + Date.now() + '.csv';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }
-
-  /* ---------------------------------------------------------
-     Reading history (demo data — replace with real historical
-     readings from your backend/database as needed)
-  --------------------------------------------------------- */
-  function generateDemoHistory() {
-    const rows = [];
-    const now = new Date();
-    for (let i = 0; i < 28; i++) {
-      const hoursAgo = i * 6; // one reading every 6 hours, 28 entries = 7 days
-      const ts = new Date(now.getTime() - hoursAgo * 3600 * 1000);
-      rows.push({
-        timestamp: ts,
-        methane: +(60 + Math.sin(i / 3) * 5).toFixed(1),
-        co2: +(38 - Math.sin(i / 3) * 4).toFixed(1),
-        h2s: Math.round(150 + Math.sin(i / 4) * 70),
-        temperature: +(34 + Math.sin(i / 5) * 3.5).toFixed(1),
-        ph: +(7.0 + Math.sin(i / 6) * 0.3).toFixed(2),
-        pressure: +(2.4 + Math.sin(i / 4) * 0.9).toFixed(2)
-      });
+    pill?.classList.toggle("offline", !isOnline);
+    if (pillText) pillText.textContent = label;
+    if (infoText) {
+      infoText.textContent = isOnline
+        ? (currentLang === "km" ? "កំពុងដំណើរការ" : "Online")
+        : (currentLang === "km" ? "មិនភ្ជាប់" : "Offline");
+      infoText.style.color = isOnline ? "var(--primary)" : "var(--red)";
     }
-    return rows;
   }
 
-  const demoHistory = generateDemoHistory();
+  function applyLatestReading(data) {
+    latestReading = data || null;
 
-  function worstStatus(keys) {
-    if (keys.indexOf('statusCritical') !== -1) return 'statusCritical';
-    if (keys.indexOf('statusWarning') !== -1) return 'statusWarning';
-    return 'statusNormal';
+    if (!latestReading) {
+      ["methane", "co2", "h2s", "temperature", "humidity", "ph", "pressure"]
+        .forEach(id => updateValue(id, null, id === "ph" || id === "pressure" ? 2 : 1));
+      document.getElementById("wifiSignal").textContent = "—";
+      document.getElementById("lastUpdate").textContent = "—";
+      setDeviceStatus(false);
+      return;
+    }
+
+    const values = {
+      methane: firstFinite(latestReading, FIELD_MAP.methane),
+      co2: firstFinite(latestReading, FIELD_MAP.co2),
+      h2s: firstFinite(latestReading, FIELD_MAP.h2s),
+      temperature: firstFinite(latestReading, FIELD_MAP.temperature),
+      humidity: firstFinite(latestReading, FIELD_MAP.humidity),
+      ph: firstFinite(latestReading, FIELD_MAP.ph),
+      pressure: firstFinite(latestReading, FIELD_MAP.pressure)
+    };
+
+    updateValue("methane", values.methane, 1);
+    updateValue("co2", values.co2, 1);
+    updateValue("h2s", values.h2s, 0);
+    updateValue("temperature", values.temperature, 1);
+    updateValue("humidity", values.humidity, 1);
+    updateValue("ph", values.ph, 2);
+    updateValue("pressure", values.pressure, 2);
+
+    const wifi = Number(latestReading.wifiRssi);
+    document.getElementById("wifiSignal").textContent =
+      Number.isFinite(wifi) ? `${wifi} dBm` : "—";
+
+    const timestamp = readingTimestamp(latestReading);
+    document.getElementById("lastUpdate").textContent = formatDateTime(timestamp);
+
+    const online = Number.isFinite(timestamp) &&
+      (Date.now() - timestamp <= OFFLINE_AFTER_MS);
+    setDeviceStatus(online);
+    updateTrendArrows();
   }
 
-  function formatHistoryDate(date) {
-    const locale = currentLang === 'km' ? 'km-KH' : 'en-US';
-    return date.toLocaleString(locale, { dateStyle: 'medium', timeStyle: 'short' });
+  function normalizeHistory(rawHistory) {
+    if (!rawHistory || typeof rawHistory !== "object") return [];
+
+    return Object.entries(rawHistory)
+      .map(([key, reading]) => ({
+        key,
+        raw: reading || {},
+        timestamp: readingTimestamp(reading),
+        methane: firstFinite(reading, FIELD_MAP.methane),
+        co2: firstFinite(reading, FIELD_MAP.co2),
+        h2s: firstFinite(reading, FIELD_MAP.h2s),
+        temperature: firstFinite(reading, FIELD_MAP.temperature),
+        humidity: firstFinite(reading, FIELD_MAP.humidity),
+        ph: firstFinite(reading, FIELD_MAP.ph),
+        pressure: firstFinite(reading, FIELD_MAP.pressure)
+      }))
+      .filter(row => Number.isFinite(row.timestamp))
+      .sort((a, b) => a.timestamp - b.timestamp);
   }
 
-  function historyRowStatus(r) {
-    return worstStatus([
-      getStatusKey('methane', r.methane),
-      getStatusKey('co2', r.co2),
-      getStatusKey('h2s', r.h2s),
-      getStatusKey('temperature', r.temperature),
-      getStatusKey('ph', r.ph),
-      getStatusKey('pressure', r.pressure)
-    ]);
+  function computeTrend(key) {
+    const values = firebaseHistory
+      .map(row => row[key])
+      .filter(Number.isFinite);
+
+    if (values.length < 2) return "–";
+    const previous = values[values.length - 2];
+    const current = values[values.length - 1];
+    if (current > previous) return "▲";
+    if (current < previous) return "▼";
+    return "–";
+  }
+
+  function updateTrendArrows() {
+    ["methane", "co2", "h2s", "temperature", "humidity", "ph", "pressure"]
+      .forEach(key => {
+        const element = document.getElementById(key + "Trend");
+        if (element) element.textContent = computeTrend(key);
+      });
+  }
+
+  function worstStatus(statuses) {
+    if (statuses.includes("statusCritical")) return "statusCritical";
+    if (statuses.includes("statusWarning")) return "statusWarning";
+    return statuses.length ? "statusNormal" : null;
+  }
+
+  function historyRowStatus(row) {
+    return worstStatus(
+      Object.keys(RANGES)
+        .map(key => getStatusKey(key, row[key]))
+        .filter(Boolean)
+    );
   }
 
   function filteredHistory() {
-    const maxAgeHours = parseInt(document.getElementById('historyRange').value, 10);
-    const now = new Date();
-    return demoHistory.filter(function (r) {
-      return (now - r.timestamp) <= maxAgeHours * 3600 * 1000;
-    });
+    const control = document.getElementById("historyRange");
+    const maxAgeHours = Number(control?.value || 168);
+    const cutoff = Date.now() - maxAgeHours * 3600000;
+    return firebaseHistory.filter(row => row.timestamp >= cutoff);
+  }
+
+  function cellValue(value, decimals = 1) {
+    return Number.isFinite(value) ? value.toFixed(decimals) : "—";
   }
 
   function renderHistoryTable() {
-    const tbody = document.getElementById('historyTableBody');
+    const tbody = document.getElementById("historyTableBody");
     if (!tbody) return;
-    const rows = filteredHistory();
-    tbody.innerHTML = '';
 
-    rows.forEach(function (r) {
-      const worst = historyRowStatus(r);
-      const tr = document.createElement('tr');
+    const rows = filteredHistory().slice().reverse();
+    tbody.innerHTML = "";
+
+    if (!rows.length) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = '<td colspan="9">No Firebase history is available for this period.</td>';
+      tbody.appendChild(tr);
+      return;
+    }
+
+    rows.forEach(row => {
+      const status = historyRowStatus(row);
+      const tr = document.createElement("tr");
       tr.innerHTML =
-        '<td>' + formatHistoryDate(r.timestamp) + '</td>' +
-        '<td>' + r.methane + '</td>' +
-        '<td>' + r.co2 + '</td>' +
-        '<td>' + r.h2s + '</td>' +
-        '<td>' + r.temperature + '</td>' +
-        '<td>' + r.ph + '</td>' +
-        '<td>' + r.pressure + '</td>' +
-        '<td><span class="' + badgeClass(worst) + '">' + t[currentLang][worst] + '</span></td>';
+        `<td>${formatDateTime(row.timestamp)}</td>` +
+        `<td>${cellValue(row.methane)}</td>` +
+        `<td>${cellValue(row.co2)}</td>` +
+        `<td>${cellValue(row.h2s, 0)}</td>` +
+        `<td>${cellValue(row.temperature)}</td>` +
+        `<td>${cellValue(row.humidity)}</td>` +
+        `<td>${cellValue(row.ph, 2)}</td>` +
+        `<td>${cellValue(row.pressure, 2)}</td>` +
+        `<td>${status ? `<span class="${badgeClass(status)}">${t[currentLang][status]}</span>` : "—"}</td>`;
       tbody.appendChild(tr);
     });
   }
 
-  function exportHistoryCSV() {
-    const tr = t[currentLang];
-    const rows = filteredHistory();
+  function downloadCSV(filename, rows) {
+    const csv = rows
+      .map(row => row.map(value => {
+        const text = String(value ?? "");
+        return `"${text.replaceAll('"', '""')}"`;
+      }).join(","))
+      .join("\n");
 
-    const header = [
-      tr.colTimestamp, tr.colMethane, tr.colCo2, tr.colH2s, tr.colTemp, tr.colPh, tr.colPressure, tr.statusLabel
-    ];
-
-    const lines = rows.map(function (r) {
-      const worst = historyRowStatus(r);
-      return [
-        formatHistoryDate(r.timestamp), r.methane, r.co2, r.h2s, r.temperature, r.ph, r.pressure, tr[worst]
-      ].join(',');
-    });
-
-    const csv = [header.join(',')].concat(lines).join('\n');
-    const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'biogas-history-' + Date.now() + '.csv';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = filename;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
     URL.revokeObjectURL(url);
   }
 
-  /* ---------------------------------------------------------
-     Tab navigation
-  --------------------------------------------------------- */
-  function switchTab(tab) {
-    document.querySelectorAll('.tab-btn').forEach(function (btn) {
-      btn.classList.toggle('active', btn.dataset.tab === tab);
-    });
-    document.querySelectorAll('.tab-panel').forEach(function (panel) {
-      panel.classList.toggle('active', panel.dataset.tabPanel === tab);
-    });
-    if (tab === 'history') renderHistoryTable();
+  function exportCSV() {
+    const tr = t[currentLang];
+    downloadCSV(`biogas-latest-${Date.now()}.csv`, [
+      ["Parameter", "Value", "Unit"],
+      [tr.methaneLabel, document.getElementById("methane").textContent, "% CH4"],
+      [tr.co2Label, document.getElementById("co2").textContent, "% CO2"],
+      [tr.h2sLabel, document.getElementById("h2s").textContent, "ppm H2S"],
+      [tr.tempLabel, document.getElementById("temperature").textContent, "°C"],
+      [tr.humidityLabel, document.getElementById("humidity").textContent, "% RH"],
+      [tr.phLabel, document.getElementById("ph").textContent, "pH"],
+      [tr.pressureLabel, document.getElementById("pressure").textContent, "kPa"]
+    ]);
   }
 
-  /* ---------------------------------------------------------
-     Charts
-  --------------------------------------------------------- */
-  const gasChart = new Chart(document.getElementById('gasChart'), {
-    type: 'line',
+  function exportHistoryCSV() {
+    const tr = t[currentLang];
+    const rows = filteredHistory().slice().reverse();
+    downloadCSV(`biogas-history-${Date.now()}.csv`, [
+      [
+        tr.colTimestamp, tr.colMethane, tr.colCo2, tr.colH2s,
+        tr.colTemp, tr.colHumidity, tr.colPh, tr.colPressure, tr.statusLabel
+      ],
+      ...rows.map(row => {
+        const status = historyRowStatus(row);
+        return [
+          formatDateTime(row.timestamp),
+          cellValue(row.methane),
+          cellValue(row.co2),
+          cellValue(row.h2s, 0),
+          cellValue(row.temperature),
+          cellValue(row.humidity),
+          cellValue(row.ph, 2),
+          cellValue(row.pressure, 2),
+          status ? t[currentLang][status] : "—"
+        ];
+      })
+    ]);
+  }
+
+  const gasChart = new Chart(document.getElementById("gasChart"), {
+    type: "line",
     data: {
-      labels: timeLabels,
+      labels: [],
       datasets: [
-        {
-          label: t.en.methaneLegend,
-          data: methaneSeries,
-          borderColor: '#1f7a4d',
-          backgroundColor: 'rgba(31, 122, 77, 0.12)',
-          tension: 0.3,
-          fill: true
-        },
-        {
-          label: t.en.co2Legend,
-          data: co2Series,
-          borderColor: '#2563eb',
-          backgroundColor: 'rgba(37, 99, 235, 0.08)',
-          tension: 0.3,
-          fill: true
-        },
-        {
-          label: t.en.h2sLegend,
-          data: h2sSeries,
-          borderColor: '#c23a2e',
-          backgroundColor: 'rgba(194, 58, 46, 0.08)',
-          tension: 0.3,
-          fill: false
-        }
+        { label: t.en.methaneLegend, data: [], borderColor: "#1f7a4d", tension: 0.3, fill: false },
+        { label: t.en.co2Legend, data: [], borderColor: "#2563eb", tension: 0.3, fill: false },
+        { label: t.en.h2sLegend, data: [], borderColor: "#c23a2e", tension: 0.3, fill: false }
       ]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: { position: 'top' } },
+      spanGaps: true,
+      plugins: { legend: { position: "top" } },
       scales: { y: { beginAtZero: false } }
     }
   });
 
-  const conditionChart = new Chart(document.getElementById('conditionChart'), {
-    type: 'line',
+  const conditionChart = new Chart(document.getElementById("conditionChart"), {
+    type: "line",
     data: {
-      labels: timeLabels,
+      labels: [],
       datasets: [
         {
           label: t.en.tempLegend,
-          data: tempSeries,
-          borderColor: '#dd8a2e',
-          backgroundColor: 'rgba(221, 138, 46, 0.10)',
+          data: [],
+          borderColor: "#dd8a2e",
           tension: 0.3,
-          fill: true,
-          yAxisID: 'temperatureAxis'
+          fill: false,
+          yAxisID: "temperatureAxis"
         },
         {
-          label: t.en.phLegend,
-          data: phSeries,
-          borderColor: '#7c4dff',
-          backgroundColor: 'rgba(124, 77, 255, 0.10)',
+          label: t.en.humidityLegend,
+          data: [],
+          borderColor: "#2563eb",
           tension: 0.3,
-          fill: true,
-          yAxisID: 'phAxis'
+          fill: false,
+          yAxisID: "humidityAxis"
         }
       ]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: { position: 'top' } },
+      spanGaps: true,
+      plugins: { legend: { position: "top" } },
       scales: {
         temperatureAxis: {
-          type: 'linear',
-          position: 'left',
+          type: "linear",
+          position: "left",
           title: { display: true, text: t.en.tempAxisTitle }
         },
-        phAxis: {
-          type: 'linear',
-          position: 'right',
-          min: 6,
-          max: 8,
+        humidityAxis: {
+          type: "linear",
+          position: "right",
+          min: 0,
+          max: 100,
           grid: { drawOnChartArea: false },
-          title: { display: true, text: t.en.phAxisTitle }
+          title: { display: true, text: t.en.humidityAxisTitle }
         }
       }
     }
   });
 
-  /* ---------------------------------------------------------
-     Init
-  --------------------------------------------------------- */
-  document.getElementById('loginPassword').addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') attemptLogin();
+  function refreshCharts() {
+    const rows = firebaseHistory.slice(-50);
+    const labels = rows.map(row => new Date(row.timestamp).toLocaleTimeString(
+      currentLang === "km" ? "km-KH" : "en-US",
+      { hour: "2-digit", minute: "2-digit" }
+    ));
+
+    gasChart.data.labels = labels;
+    gasChart.data.datasets[0].data = rows.map(row => row.methane);
+    gasChart.data.datasets[1].data = rows.map(row => row.co2);
+    gasChart.data.datasets[2].data = rows.map(row => row.h2s);
+    gasChart.update();
+
+    conditionChart.data.labels = labels;
+    conditionChart.data.datasets[0].data = rows.map(row => row.temperature);
+    conditionChart.data.datasets[1].data = rows.map(row => row.humidity);
+    conditionChart.update();
+  }
+
+  function updateChartLanguage() {
+    const family = currentLang === "km"
+      ? "'Noto Sans Khmer', sans-serif"
+      : "'Inter', sans-serif";
+
+    gasChart.data.datasets[0].label = t[currentLang].methaneLegend;
+    gasChart.data.datasets[1].label = t[currentLang].co2Legend;
+    gasChart.data.datasets[2].label = t[currentLang].h2sLegend;
+    gasChart.options.font = { family };
+    gasChart.update();
+
+    conditionChart.data.datasets[0].label = t[currentLang].tempLegend;
+    conditionChart.data.datasets[1].label = t[currentLang].humidityLegend;
+    conditionChart.options.scales.temperatureAxis.title.text = t[currentLang].tempAxisTitle;
+    conditionChart.options.scales.humidityAxis.title.text = t[currentLang].humidityAxisTitle;
+    conditionChart.options.font = { family };
+    conditionChart.update();
+  }
+
+  function setLanguage(lang) {
+    currentLang = lang;
+    document.body.classList.toggle("lang-km", lang === "km");
+    document.documentElement.lang = lang;
+
+    document.getElementById("btnLangEn").classList.toggle("active", lang === "en");
+    document.getElementById("btnLangKm").classList.toggle("active", lang === "km");
+
+    document.querySelectorAll("[data-i18n]").forEach(element => {
+      const key = element.dataset.i18n;
+      if (t[lang]?.[key] !== undefined) element.textContent = t[lang][key];
+    });
+
+    document.querySelectorAll("[data-i18n-placeholder]").forEach(element => {
+      const key = element.dataset.i18nPlaceholder;
+      if (t[lang]?.[key] !== undefined) element.placeholder = t[lang][key];
+    });
+
+    applyLatestReading(latestReading);
+    renderHistoryTable();
+    refreshCharts();
+    updateChartLanguage();
+  }
+
+  function switchTab(tab) {
+    document.querySelectorAll(".tab-btn").forEach(button => {
+      button.classList.toggle("active", button.dataset.tab === tab);
+    });
+    document.querySelectorAll(".tab-panel").forEach(panel => {
+      panel.classList.toggle("active", panel.dataset.tabPanel === tab);
+    });
+    if (tab === "history") renderHistoryTable();
+  }
+
+  function refreshTimestamp() {
+    applyLatestReading(latestReading);
+  }
+
+  function attemptLogin() {
+    const input = document.getElementById("loginPassword").value;
+    const error = document.getElementById("loginError");
+
+    if (input === SITE_PASSWORD) {
+      document.getElementById("loginOverlay").style.display = "none";
+      document.getElementById("dashboardRoot").style.display = "";
+      error.style.display = "none";
+      startFirebaseListeners();
+    } else {
+      error.style.display = "block";
+    }
+  }
+
+  function startFirebaseListeners() {
+    if (latestListenerStarted || historyListenerStarted) return;
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    latestListenerStarted = true;
+    onValue(
+      ref(database, `devices/${DEVICE_ID}/latest`),
+      snapshot => applyLatestReading(snapshot.val()),
+      error => {
+        console.error("Latest-reading listener failed:", error);
+        document.getElementById("lastUpdate").textContent = "Firebase read denied";
+        setDeviceStatus(false);
+      }
+    );
+
+    historyListenerStarted = true;
+    const historyQuery = query(
+      ref(database, `devices/${DEVICE_ID}/history`),
+      orderByChild("timestamp"),
+      limitToLast(500)
+    );
+
+    onValue(
+      historyQuery,
+      snapshot => {
+        firebaseHistory = normalizeHistory(snapshot.val());
+        renderHistoryTable();
+        refreshCharts();
+        updateTrendArrows();
+      },
+      error => {
+        console.error("History listener failed:", error);
+        firebaseHistory = [];
+        renderHistoryTable();
+        refreshCharts();
+      }
+    );
+  }
+
+  window.attemptLogin = attemptLogin;
+  window.setLanguage = setLanguage;
+  window.switchTab = switchTab;
+  window.refreshTimestamp = refreshTimestamp;
+  window.exportCSV = exportCSV;
+  window.renderHistoryTable = renderHistoryTable;
+  window.exportHistoryCSV = exportHistoryCSV;
+
+  document.getElementById("loginPassword").addEventListener("keydown", event => {
+    if (event.key === "Enter") attemptLogin();
   });
 
-  refreshTimestamp();
-  renderBadgesAndTrends();
+  applyLatestReading(null);
   renderHistoryTable();
+  refreshCharts();
 </script>
 
 </body>
