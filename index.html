@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IoT Biogas Quality Monitoring System | ប្រព័ន្ធត្រួតពិនិត្យជីវឧស្ម័ន</title>
+
+<!-- Chart.js library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Fonts: Inter for English UI, Noto Sans Khmer for Khmer text -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Khmer:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #f2f6f3;
+    --surface: #ffffff;
+    --ink: #16241c;
+    --muted: #5c6b62;
+    --line: #e1e8e3;
+
+    --primary: #1f7a4d;
+    --primary-dark: #123d27;
+    --primary-light: #2f9e63;
+    --primary-tint: #e7f3ec;
+
+    --amber: #b5790a;
+    --amber-tint: #fdf3e0;
+    --red: #c23a2e;
+    --red-tint: #fbe9e7;
+
+    --blue: #2563eb;
+    --orange: #dd8a2e;
+    --purple: #7c4dff;
+
+    --shadow: 0 6px 20px rgba(18, 50, 33, 0.08);
+    --shadow-sm: 0 2px 8px rgba(18, 50, 33, 0.06);
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    font-family: 'Inter', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body.lang-km,
+  body.lang-km input,
+  body.lang-km button,
+  body.lang-km select {
+    font-family: 'Noto Sans Khmer', 'Inter', Arial, sans-serif;
+  }
+
+  button { font-family: inherit; }
+
+  button:focus-visible,
+  a:focus-visible {
+    outline: 2px solid var(--primary-dark);
+    outline-offset: 2px;
+  }
+
+  /* ---------- Header ---------- */
+
+  header {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+    color: white;
+    padding: 22px 32px;
+  }
+
+  .header-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-box {
+    width: 76px;
+    height: 76px;
+    padding: 6px;
+    background: white;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  }
+
+  .logo-box img { width: 100%; height: 100%; object-fit: contain; }
+
+  .title-block { text-align: center; }
+
+  .title-block h1 {
+    margin: 0;
+    font-size: clamp(20px, 2.6vw, 32px);
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+
+  .title-block p {
+    margin: 6px 0 0;
+    font-size: 15px;
+    font-weight: 500;
+    opacity: 0.92;
+  }
+
+  .control-cluster {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+  }
+
+  .lang-switch {
+    display: inline-flex;
+    background: rgba(255, 255, 255, 0.16);
+    border-radius: 20px;
+    padding: 3px;
+    gap: 2px;
+  }
+
+  .lang-btn {
+    border: none;
+    background: transparent;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .lang-btn.active {
+    background: white;
+    color: var(--primary-dark);
+  }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    color: var(--primary-dark);
+    font-weight: 700;
+    font-size: 13px;
+    padding: 9px 16px;
+    border-radius: 30px;
+    white-space: nowrap;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--primary-light);
+    box-shadow: 0 0 0 3px var(--primary-tint);
+  }
+
+  /* ---------- Layout ---------- */
+
+  .container {
+    max-width: 1350px;
+    margin: 28px auto;
+    padding: 0 20px 40px;
+  }
+
+  .toolbar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+  }
+
+  .btn:hover { transform: translateY(-1px); }
+
+  .btn-outline {
+    background: var(--surface);
+    color: var(--primary-dark);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .btn-outline:hover { border-color: var(--primary-light); }
+
+  .btn-solid {
+    background: var(--primary);
+    color: white;
+    border: 1px solid var(--primary);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .btn-solid:hover { background: var(--primary-dark); }
+
+  .top-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 18px;
+    margin-bottom: 24px;
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px;
+    box-shadow: var(--shadow);
+  }
+
+  .panel h2 {
+    margin: 0 0 16px;
+    color: var(--primary-dark);
+    font-size: 19px;
+    font-weight: 700;
+  }
+
+  .overview-text {
+    line-height: 1.7;
+    color: #3c4a42;
+    font-size: 14.5px;
+  }
+
+  .overview-text + .overview-text { margin-top: 10px; }
+
+  .device-info dl {
+    margin: 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px 14px;
+    font-size: 14.5px;
+  }
+
+  .device-info dt { color: var(--muted); font-weight: 500; }
+  .device-info dd { margin: 0; font-weight: 600; }
+
+  .online-text { color: var(--primary); }
+
+  /* ---------- Sensor cards ---------- */
+
+  .section-title {
+    margin: 0 0 16px;
+    color: var(--primary-dark);
+    font-size: 21px;
+    font-weight: 700;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(170px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px 16px;
+    box-shadow: var(--shadow-sm);
+    border-top: 4px solid var(--primary);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow);
+  }
+
+  .card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .card-head h3 {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13.5px;
+    font-weight: 600;
+  }
+
+  .badge {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 3px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  .badge-normal { background: var(--primary-tint); color: var(--primary-dark); }
+  .badge-warning { background: var(--amber-tint); color: var(--amber); }
+  .badge-critical { background: var(--red-tint); color: var(--red); }
+
+  .value-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  .value {
+    font-size: 30px;
+    font-weight: 800;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .trend { font-size: 14px; color: var(--muted); }
+
+  .unit {
+    color: var(--muted);
+    font-size: 12.5px;
+    margin-top: 2px;
+  }
+
+  .range-caption {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--line);
+    font-size: 11.5px;
+    color: var(--muted);
+  }
+
+  /* ---------- Charts ---------- */
+
+  .charts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+
+  .chart-container {
+    position: relative;
+    width: 100%;
+    height: 320px;
+  }
+
+  /* ---------- Footer ---------- */
+
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    padding: 26px 20px;
+  }
+
+  /* ---------- Responsive ---------- */
+
+  @media (max-width: 1100px) {
+    .cards { grid-template-columns: repeat(3, minmax(160px, 1fr)); }
+  }
+
+  @media (max-width: 900px) {
+    .header-inner { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+    .title-block { order: -1; }
+    .control-cluster { align-items: center; flex-direction: row; }
+    .top-grid, .charts { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 650px) {
+    header { padding: 18px 16px; }
+    .logo-box { width: 64px; height: 64px; }
+    .cards { grid-template-columns: repeat(2, minmax(140px, 1fr)); }
+    .title-block h1 { font-size: 21px; }
+  }
+
+  @media (max-width: 420px) {
+    .cards { grid-template-columns: 1fr; }
+    .toolbar { flex-direction: column; }
+    .btn { justify-content: center; }
+  }
+</style>
+</head>
+
+<body class="lang-en">
+
+<!-- Header -->
+<header>
+  <div class="header-inner">
+
+    <div class="brand">
+      <div class="logo-box">
+        <img src="images/rua-logo.png" alt="Royal University of Agriculture logo">
+      </div>
+      <div class="logo-box">
+        <img src="images/btc-biogas-logo.png" alt="Biogas Technology and Innovation Center logo">
+      </div>
+    </div>
+
+    <div class="title-block">
+      <h1 data-i18n="appTitle">IoT Biogas Quality Monitoring System</h1>
+      <p data-i18n="appSubtitle">Royal University of Agriculture</p>
+    </div>
+
+    <div class="control-cluster">
+      <div class="lang-switch" role="group" aria-label="Language / ភាសា">
+        <button type="button" class="lang-btn active" id="btnLangEn" onclick="setLanguage('en')">EN</button>
+        <button type="button" class="lang-btn" id="btnLangKm" onclick="setLanguage('km')">ខ្មែរ</button>
+      </div>
+      <div class="status-pill" id="deviceStatus">
+        <span class="status-dot"></span>
+        <span data-i18n="deviceOnline">DEVICE ONLINE</span>
+      </div>
+    </div>
+
+  </div>
+</header>
+
+<!-- Main dashboard -->
+<main class="container">
+
+  <section class="toolbar">
+    <button type="button" class="btn btn-outline" onclick="refreshTimestamp()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg>
+      <span data-i18n="refreshBtn">Refresh Timestamp</span>
+    </button>
+    <button type="button" class="btn btn-solid" onclick="exportCSV()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M5 21h14"/></svg>
+      <span data-i18n="exportBtn">Export Data (CSV)</span>
+    </button>
+  </section>
+
+  <section class="top-grid">
+
+    <div class="panel">
+      <h2 data-i18n="overviewTitle">System Overview</h2>
+      <p class="overview-text" data-i18n="overviewText1">
+        This dashboard displays real-time monitoring data for biogas quality and digester conditions, including methane, carbon dioxide, hydrogen sulphide, temperature, pH and gas pressure.
+      </p>
+      <p class="overview-text">
+        <strong data-i18n="purposeLabel">Purpose:</strong>
+        <span data-i18n="overviewText2">To support real-time monitoring and evaluation of small-scale biogas systems using Internet of Things technology.</span>
+      </p>
+    </div>
+
+    <div class="panel device-info">
+      <h2 data-i18n="deviceInfoTitle">Device Information</h2>
+      <dl>
+        <dt data-i18n="deviceIdLabel">Device ID</dt>
+        <dd>RUA-Biogas-01</dd>
+
+        <dt data-i18n="statusLabel">Status</dt>
+        <dd class="online-text" data-i18n="onlineValue">Online</dd>
+
+        <dt data-i18n="lastUpdateLabel">Last Update</dt>
+        <dd id="lastUpdate">—</dd>
+
+        <dt data-i18n="wifiLabel">Wi-Fi Signal</dt>
+        <dd id="wifiSignal">-62 dBm</dd>
+
+        <dt data-i18n="locationLabel">Location</dt>
+        <dd>FABE Laboratory</dd>
+
+        <dt data-i18n="powerLabel">Power Supply</dt>
+        <dd>Solar / 12 V</dd>
+      </dl>
+    </div>
+
+  </section>
+
+  <h2 class="section-title" data-i18n="sensorSectionTitle">Live Sensor Dashboard</h2>
+
+  <section class="cards">
+
+    <article class="card" data-key="methane">
+      <div class="card-head">
+        <h3 data-i18n="methaneLabel">Methane</h3>
+        <span class="badge" id="methaneBadge"></span>
+      </div>
+      <div class="value-row">
+        <div class="value" id="methane">61.5</div>
+        <span class="trend" id="methaneTrend"></span>
+      </div>
+      <div class="unit">% CH₄</div>
+      <div class="range-caption"><span data-i18n="optimalRangeLabel">Optimal range:</span> 55–70%</div>
+    </article>
+
+    <article class="card" data-key="co2">
+      <div class="card-head">
+        <h3 data-i18n="co2Label">Carbon Dioxide</h3>
+        <span class="badge" id="co2Badge"></span>
+      </div>
+      <div class="value-row">
+        <div class="value" id="co2">37.8</div>
+        <span class="trend" id="co2Trend"></span>
+      </div>
+      <div class="unit">% CO₂</div>
+      <div class="range-caption"><span data-i18n="optimalRangeLabel">Optimal range:</span> 30–45%</div>
+    </article>
+
+    <article class="card" data-key="h2s">
+      <div class="card-head">
+        <h3 data-i18n="h2sLabel">Hydrogen Sulphide</h3>
+        <span class="badge" id="h2sBadge"></span>
+      </div>
+      <div class="value-row">
+        <div class="value" id="h2s">145</div>
+        <span class="trend" id="h2sTrend"></span>
+      </div>
+      <div class="unit">ppm H₂S</div>
+      <div class="range-caption"><span data-i18n="optimalRangeLabel">Optimal range:</span> &lt; 150 ppm</div>
+    </article>
+
+    <article class="card" data-key="temperature">
+      <div class="card-head">
+        <h3 data-i18n="tempLabel">Temperature</h3>
+        <span class="badge" id="temperatureBadge"></span>
+      </div>
+      <div class="value-row">
+        <div class="value" id="temperature">35.2</div>
+        <span class="trend" id="temperatureTrend"></span>
+      </div>
+      <div class="unit">°C</div>
+      <div class="range-caption"><span data-i18n="optimalRangeLabel">Optimal range:</span> 30–38 °C</div>
+    </article>
+
+    <article class="card" data-key="ph">
+      <div class="card-head">
+        <h3 data-i18n="phLabel">pH Level</h3>
+        <span class="badge" id="phBadge"></span>
+      </div>
+      <div class="value-row">
+        <div class="value" id="ph">7.10</div>
+        <span class="trend" id="phTrend"></span>
+      </div>
+      <div class="unit">pH</div>
+      <div class="range-caption"><span data-i18n="optimalRangeLabel">Optimal range:</span> 6.8–7.3</div>
+    </article>
+
+    <article class="card" data-key="pressure">
+      <div class="card-head">
+        <h3 data-i18n="pressureLabel">Gas Pressure</h3>
+        <span class="badge" id="pressureBadge"></span>
+      </div>
+      <div class="value-row">
+        <div class="value" id="pressure">2.40</div>
+        <span class="trend" id="pressureTrend"></span>
+      </div>
+      <div class="unit">kPa</div>
+      <div class="range-caption"><span data-i18n="optimalRangeLabel">Optimal range:</span> 1.5–3.5 kPa</div>
+    </article>
+
+  </section>
+
+  <section class="charts">
+
+    <div class="panel">
+      <h2 data-i18n="gasChartTitle">Gas Composition Trend</h2>
+      <div class="chart-container">
+        <canvas id="gasChart"></canvas>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2 data-i18n="conditionChartTitle">Temperature &amp; pH Trend</h2>
+      <div class="chart-container">
+        <canvas id="conditionChart"></canvas>
+      </div>
+    </div>
+
+  </section>
+
+</main>
+
+<footer data-i18n="footerText">
+  © 2026 Royal University of Agriculture — IoT Biogas Monitoring Research Project
+</footer>
+
+<script>
+  /* ---------------------------------------------------------
+     Translations
+  --------------------------------------------------------- */
+  const t = {
+    en: {
+      appTitle: "IoT Biogas Quality Monitoring System",
+      appSubtitle: "Royal University of Agriculture",
+      deviceOnline: "DEVICE ONLINE",
+      refreshBtn: "Refresh Timestamp",
+      exportBtn: "Export Data (CSV)",
+      overviewTitle: "System Overview",
+      overviewText1: "This dashboard displays real-time monitoring data for biogas quality and digester conditions, including methane, carbon dioxide, hydrogen sulphide, temperature, pH and gas pressure.",
+      purposeLabel: "Purpose:",
+      overviewText2: "To support real-time monitoring and evaluation of small-scale biogas systems using Internet of Things technology.",
+      deviceInfoTitle: "Device Information",
+      deviceIdLabel: "Device ID",
+      statusLabel: "Status",
+      onlineValue: "Online",
+      lastUpdateLabel: "Last Update",
+      wifiLabel: "Wi-Fi Signal",
+      locationLabel: "Location",
+      powerLabel: "Power Supply",
+      sensorSectionTitle: "Live Sensor Dashboard",
+      methaneLabel: "Methane",
+      co2Label: "Carbon Dioxide",
+      h2sLabel: "Hydrogen Sulphide",
+      tempLabel: "Temperature",
+      phLabel: "pH Level",
+      pressureLabel: "Gas Pressure",
+      optimalRangeLabel: "Optimal range:",
+      statusNormal: "Normal",
+      statusWarning: "Warning",
+      statusCritical: "Critical",
+      gasChartTitle: "Gas Composition Trend",
+      conditionChartTitle: "Temperature & pH Trend",
+      methaneLegend: "Methane (%)",
+      co2Legend: "CO₂ (%)",
+      h2sLegend: "H₂S (ppm)",
+      tempLegend: "Temperature (°C)",
+      phLegend: "pH",
+      tempAxisTitle: "Temperature (°C)",
+      phAxisTitle: "pH",
+      footerText: "© 2026 Royal University of Agriculture — IoT Biogas Monitoring Research Project"
+    },
+    km: {
+      appTitle: "ប្រព័ន្ធត្រួតពិនិត្យគុណភាពឧស្ម័នជីវឧស្ម័នតាមអ៊ីនធឺណិតវត្ថុ",
+      appSubtitle: "សាកលវិទ្យាល័យភូមិន្ទកសិកម្ម",
+      deviceOnline: "ឧបករណ៍កំពុងដំណើរការ",
+      refreshBtn: "ធ្វើបច្ចុប្បន្នភាពពេលវេលា",
+      exportBtn: "នាំចេញទិន្នន័យ (CSV)",
+      overviewTitle: "ទិដ្ឋភាពទូទៅប្រព័ន្ធ",
+      overviewText1: "ផ្ទាំងគ្រប់គ្រងនេះបង្ហាញទិន្នន័យត្រួតពិនិត្យជាក់ស្តែងស្តីពីគុណភាពឧស្ម័នជីវឧស្ម័ន និងស្ថានភាពនៃប្រព័ន្ធរំលាយ រួមមានឧស្ម័នមេតាន កាបូនឌីអុកស៊ីត អ៊ីដ្រូសែនស៊ុលហ្វីត សីតុណ្ហភាព pH និងសម្ពាធឧស្ម័ន។",
+      purposeLabel: "គោលបំណង៖",
+      overviewText2: "ដើម្បីគាំទ្រការត្រួតពិនិត្យ និងវាយតម្លៃជាក់ស្តែងនៃប្រព័ន្ធជីវឧស្ម័នខ្នាតតូច ដោយប្រើបច្ចេកវិទ្យាអ៊ីនធឺណិតវត្ថុ (IoT)។",
+      deviceInfoTitle: "ព័ត៌មានឧបករណ៍",
+      deviceIdLabel: "លេខសម្គាល់ឧបករណ៍",
+      statusLabel: "ស្ថានភាព",
+      onlineValue: "កំពុងដំណើរការ",
+      lastUpdateLabel: "ការធ្វើបច្ចុប្បន្នភាពចុងក្រោយ",
+      wifiLabel: "សញ្ញា Wi-Fi",
+      locationLabel: "ទីតាំង",
+      powerLabel: "ប្រភពថាមពល",
+      sensorSectionTitle: "ផ្ទាំងទិន្នន័យឧបករណ៍ចាប់សញ្ញាផ្ទាល់",
+      methaneLabel: "ឧស្ម័នមេតាន",
+      co2Label: "កាបូនឌីអុកស៊ីត",
+      h2sLabel: "អ៊ីដ្រូសែនស៊ុលហ្វីត",
+      tempLabel: "សីតុណ្ហភាព",
+      phLabel: "កម្រិត pH",
+      pressureLabel: "សម្ពាធឧស្ម័ន",
+      optimalRangeLabel: "ជួររង្វាស់ល្អប្រសើរ៖",
+      statusNormal: "ធម្មតា",
+      statusWarning: "ព្រមាន",
+      statusCritical: "គ្រោះថ្នាក់",
+      gasChartTitle: "និន្នាការសមាសភាគឧស្ម័ន",
+      conditionChartTitle: "និន្នាការសីតុណ្ហភាព និង pH",
+      methaneLegend: "ឧស្ម័នមេតាន (%)",
+      co2Legend: "កាបូនឌីអុកស៊ីត (%)",
+      h2sLegend: "អ៊ីដ្រូសែនស៊ុលហ្វីត (ppm)",
+      tempLegend: "សីតុណ្ហភាព (°C)",
+      phLegend: "pH",
+      tempAxisTitle: "សីតុណ្ហភាព (°C)",
+      phAxisTitle: "pH",
+      footerText: "© ២០២៦ សាកលវិទ្យាល័យភូមិន្ទកសិកម្ម — គម្រោងស្រាវជ្រាវត្រួតពិនិត្យជីវឧស្ម័នតាមអ៊ីនធឺណិតវត្ថុ"
+    }
+  };
+
+  let currentLang = 'en';
+
+  /* ---------------------------------------------------------
+     Optimal ranges used to compute the status badge.
+     normal = healthy operating range for a mesophilic digester
+     warning = outside normal but not yet critical
+  --------------------------------------------------------- */
+  const RANGES = {
+    methane:     { normal: [55, 70],   warning: [45, 75]   },
+    co2:         { normal: [30, 45],   warning: [25, 50]   },
+    h2s:         { normal: [0, 150],   warning: [150, 300] },
+    temperature: { normal: [30, 38],   warning: [25, 42]   },
+    ph:          { normal: [6.8, 7.3], warning: [6.5, 7.6] },
+    pressure:    { normal: [1.5, 3.5], warning: [1.0, 4.5] }
+  };
+
+  function getStatusKey(key, value) {
+    const r = RANGES[key];
+    if (value >= r.normal[0] && value <= r.normal[1]) return 'statusNormal';
+    if (value >= r.warning[0] && value <= r.warning[1]) return 'statusWarning';
+    return 'statusCritical';
+  }
+
+  function badgeClass(statusKey) {
+    if (statusKey === 'statusNormal') return 'badge badge-normal';
+    if (statusKey === 'statusWarning') return 'badge badge-warning';
+    return 'badge badge-critical';
+  }
+
+  function computeTrend(series) {
+    if (!series || series.length < 2) return '–';
+    const last = series[series.length - 1];
+    const prev = series[series.length - 2];
+    if (last > prev) return '▲';
+    if (last < prev) return '▼';
+    return '–';
+  }
+
+  /* ---------------------------------------------------------
+     Demo time-series data (replace with live readings as needed)
+  --------------------------------------------------------- */
+  const timeLabels = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00"];
+  const methaneSeries = [58, 59, 60, 61, 61.5, 62];
+  const co2Series = [40, 39.5, 39, 38.5, 37.8, 37.2];
+  const h2sSeries = [170, 165, 160, 152, 145, 142];
+  const tempSeries = [33.8, 34.1, 34.6, 35.0, 35.2, 35.5];
+  const phSeries = [6.8, 6.9, 7.0, 7.0, 7.1, 7.1];
+
+  const sensorSeries = {
+    methane: methaneSeries,
+    co2: co2Series,
+    h2s: h2sSeries,
+    temperature: tempSeries,
+    ph: phSeries
+  };
+
+  /* ---------------------------------------------------------
+     Render status badges + trend arrows from current DOM values
+  --------------------------------------------------------- */
+  function renderBadgesAndTrends() {
+    Object.keys(RANGES).forEach(function (key) {
+      const valueEl = document.getElementById(key);
+      const badgeEl = document.getElementById(key + 'Badge');
+      const trendEl = document.getElementById(key + 'Trend');
+      if (!valueEl || !badgeEl) return;
+
+      const value = parseFloat(valueEl.textContent);
+      const statusKey = getStatusKey(key, value);
+      badgeEl.className = badgeClass(statusKey);
+      badgeEl.dataset.statusKey = statusKey;
+      badgeEl.textContent = t[currentLang][statusKey];
+
+      if (trendEl) {
+        trendEl.textContent = computeTrend(sensorSeries[key]);
+      }
+    });
+  }
+
+  /* ---------------------------------------------------------
+     Language switching
+  --------------------------------------------------------- */
+  function fontFamilyFor(lang) {
+    return lang === 'km' ? "'Noto Sans Khmer', sans-serif" : "'Inter', sans-serif";
+  }
+
+  function setLanguage(lang) {
+    currentLang = lang;
+    document.body.classList.toggle('lang-km', lang === 'km');
+    document.documentElement.lang = lang;
+
+    document.getElementById('btnLangEn').classList.toggle('active', lang === 'en');
+    document.getElementById('btnLangKm').classList.toggle('active', lang === 'km');
+
+    document.querySelectorAll('[data-i18n]').forEach(function (el) {
+      const key = el.dataset.i18n;
+      if (t[lang][key] !== undefined) el.textContent = t[lang][key];
+    });
+
+    renderBadgesAndTrends();
+    updateChartLanguage();
+  }
+
+  function updateChartLanguage() {
+    const family = fontFamilyFor(currentLang);
+
+    gasChart.data.datasets[0].label = t[currentLang].methaneLegend;
+    gasChart.data.datasets[1].label = t[currentLang].co2Legend;
+    gasChart.data.datasets[2].label = t[currentLang].h2sLegend;
+    gasChart.options.font = { family: family };
+    gasChart.update();
+
+    conditionChart.data.datasets[0].label = t[currentLang].tempLegend;
+    conditionChart.data.datasets[1].label = t[currentLang].phLegend;
+    conditionChart.options.scales.temperatureAxis.title.text = t[currentLang].tempAxisTitle;
+    conditionChart.options.scales.phAxis.title.text = t[currentLang].phAxisTitle;
+    conditionChart.options.font = { family: family };
+    conditionChart.update();
+  }
+
+  /* ---------------------------------------------------------
+     Toolbar actions
+  --------------------------------------------------------- */
+  function refreshTimestamp() {
+    const locale = currentLang === 'km' ? 'km-KH' : 'en-US';
+    document.getElementById('lastUpdate').textContent = new Date().toLocaleString(locale);
+  }
+
+  function exportCSV() {
+    const tr = t[currentLang];
+    const rows = [
+      [tr.methaneLabel, document.getElementById('methane').textContent, '%'],
+      [tr.co2Label, document.getElementById('co2').textContent, '%'],
+      [tr.h2sLabel, document.getElementById('h2s').textContent, 'ppm'],
+      [tr.tempLabel, document.getElementById('temperature').textContent, '°C'],
+      [tr.phLabel, document.getElementById('ph').textContent, 'pH'],
+      [tr.pressureLabel, document.getElementById('pressure').textContent, 'kPa']
+    ];
+    const header = ['Parameter', 'Value', 'Unit'];
+    const csv = [header].concat(rows).map(function (r) { return r.join(','); }).join('\n');
+
+    const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'biogas-readings-' + Date.now() + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  /* ---------------------------------------------------------
+     Charts
+  --------------------------------------------------------- */
+  const gasChart = new Chart(document.getElementById('gasChart'), {
+    type: 'line',
+    data: {
+      labels: timeLabels,
+      datasets: [
+        {
+          label: t.en.methaneLegend,
+          data: methaneSeries,
+          borderColor: '#1f7a4d',
+          backgroundColor: 'rgba(31, 122, 77, 0.12)',
+          tension: 0.3,
+          fill: true
+        },
+        {
+          label: t.en.co2Legend,
+          data: co2Series,
+          borderColor: '#2563eb',
+          backgroundColor: 'rgba(37, 99, 235, 0.08)',
+          tension: 0.3,
+          fill: true
+        },
+        {
+          label: t.en.h2sLegend,
+          data: h2sSeries,
+          borderColor: '#c23a2e',
+          backgroundColor: 'rgba(194, 58, 46, 0.08)',
+          tension: 0.3,
+          fill: false
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'top' } },
+      scales: { y: { beginAtZero: false } }
+    }
+  });
+
+  const conditionChart = new Chart(document.getElementById('conditionChart'), {
+    type: 'line',
+    data: {
+      labels: timeLabels,
+      datasets: [
+        {
+          label: t.en.tempLegend,
+          data: tempSeries,
+          borderColor: '#dd8a2e',
+          backgroundColor: 'rgba(221, 138, 46, 0.10)',
+          tension: 0.3,
+          fill: true,
+          yAxisID: 'temperatureAxis'
+        },
+        {
+          label: t.en.phLegend,
+          data: phSeries,
+          borderColor: '#7c4dff',
+          backgroundColor: 'rgba(124, 77, 255, 0.10)',
+          tension: 0.3,
+          fill: true,
+          yAxisID: 'phAxis'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'top' } },
+      scales: {
+        temperatureAxis: {
+          type: 'linear',
+          position: 'left',
+          title: { display: true, text: t.en.tempAxisTitle }
+        },
+        phAxis: {
+          type: 'linear',
+          position: 'right',
+          min: 6,
+          max: 8,
+          grid: { drawOnChartArea: false },
+          title: { display: true, text: t.en.phAxisTitle }
+        }
+      }
+    }
+  });
+
+  /* ---------------------------------------------------------
+     Init
+  --------------------------------------------------------- */
+  refreshTimestamp();
+  renderBadgesAndTrends();
+</script>
+
+</body>
+</html>
