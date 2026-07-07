@@ -474,7 +474,7 @@
 
   .gallery-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 16px;
     margin-top: 16px;
   }
@@ -1431,6 +1431,22 @@
     }
   }
 
+  /* ---------- Revised project images ---------- */
+
+  .gallery-photo.diagram {
+    background: #ffffff;
+    border: 1px solid var(--line);
+  }
+
+  .gallery-photo.diagram img {
+    object-fit: contain;
+    padding: 10px;
+  }
+
+  .gallery-photo img {
+    background: #ffffff;
+  }
+
 </style>
 </head>
 
@@ -1706,100 +1722,47 @@
   </section>
 
   <section class="panel gallery-panel">
-    <h2 data-i18n="galleryTitle">Device &amp; Facility</h2>
+    <h2 data-i18n="galleryTitle">Project Photos &amp; Diagrams</h2>
     <p class="overview-text" data-i18n="galleryIntro">
-      Photos of the sensor unit and the BTIC biogas digester at FABE Laboratory. Drop your own site photos into the images/ folder using the filenames below to replace these placeholders.
+      Photos and diagrams for the IoT biogas quality monitoring system at FABE Laboratory. Keep these files in public/images/ when deploying with Firebase Hosting.
     </p>
+
     <div class="gallery-grid">
 
       <figure class="gallery-item">
-        <div class="gallery-photo">
-          <img src="images/device-sensor-unit.jpg" alt="ESP32 sensor unit" onerror="this.style.display='none'; this.parentElement.classList.add('no-photo')">
-          <div class="no-photo-hint">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-            <span>images/device-sensor-unit.jpg</span>
-          </div>
+        <div class="gallery-photo diagram">
+          <img src="images/device-sensor-unit.jpg" alt="Block diagram of IoT system for biogas monitoring" loading="lazy" onerror="this.onerror=null; this.src='images/app-logo.svg';">
         </div>
-        <figcaption data-i18n="galleryCaption1">Sensor unit — ESP32, RUA-Biogas-01</figcaption>
+        <figcaption data-i18n="galleryCaption1">Block diagram of IoT system for biogas monitoring</figcaption>
+      </figure>
+
+      <figure class="gallery-item">
+        <div class="gallery-photo diagram">
+          <img src="images/btic-lab.jpg" alt="Physical layout of sensor positions on biogas digester" loading="lazy" onerror="this.onerror=null; this.src='images/app-logo.svg';">
+        </div>
+        <figcaption data-i18n="galleryCaption2">Physical layout — sensor positions on biogas digester</figcaption>
       </figure>
 
       <figure class="gallery-item">
         <div class="gallery-photo">
-          <img src="images/digester-setup.jpg" alt="Biogas digester setup" onerror="this.style.display='none'; this.parentElement.classList.add('no-photo')">
-          <div class="no-photo-hint">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-            <span>images/digester-setup.jpg</span>
-          </div>
+          <img src="images/digester-setup.jpg" alt="Biogas digester setup at RUA laboratory area" loading="lazy" onerror="this.onerror=null; this.src='images/app-logo.svg';">
         </div>
-        <figcaption data-i18n="galleryCaption2">Small-scale biogas digester, FABE Laboratory</figcaption>
-      </figure>
-
-      <figure class="gallery-item">
-        <div class="gallery-photo">
-          <img src="images/btic-lab.jpg" alt="BTIC laboratory" onerror="this.style.display='none'; this.parentElement.classList.add('no-photo')">
-          <div class="no-photo-hint">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-            <span>images/btic-lab.jpg</span>
-          </div>
-        </div>
-        <figcaption data-i18n="galleryCaption3">BTIC research team at work</figcaption>
+        <figcaption data-i18n="galleryCaption3">Small-scale biogas digester setup at RUA</figcaption>
       </figure>
 
       <figure class="gallery-item">
         <div class="gallery-photo featured-logo">
-          <img src="images/app-logo.svg" alt="Dashboard app logo">
+          <img src="images/app-logo.svg" alt="Dashboard app logo" loading="lazy">
         </div>
-        <figcaption>Dashboard app logo / favicon</figcaption>
-      </figure>
-
-      <figure class="gallery-item">
-        <div class="gallery-photo">
-          <img src="images/sensor-installation.jpg" alt="Sensor installation photo" onerror="this.style.display='none'; this.parentElement.classList.add('no-photo')">
-          <div class="no-photo-hint">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-            <span>images/sensor-installation.jpg</span>
-          </div>
-        </div>
-        <figcaption>Sensor installation</figcaption>
-      </figure>
-
-      <figure class="gallery-item">
-        <div class="gallery-photo">
-          <img src="images/gas-sampling.jpg" alt="Gas sampling photo" onerror="this.style.display='none'; this.parentElement.classList.add('no-photo')">
-          <div class="no-photo-hint">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-            <span>images/gas-sampling.jpg</span>
-          </div>
-        </div>
-        <figcaption>Gas sampling activity</figcaption>
-      </figure>
-
-      <figure class="gallery-item">
-        <div class="gallery-photo">
-          <img src="images/laboratory-test.jpg" alt="Laboratory test photo" onerror="this.style.display='none'; this.parentElement.classList.add('no-photo')">
-          <div class="no-photo-hint">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-            <span>images/laboratory-test.jpg</span>
-          </div>
-        </div>
-        <figcaption>Laboratory test</figcaption>
-      </figure>
-
-      <figure class="gallery-item">
-        <div class="gallery-photo">
-          <img src="images/field-monitoring.jpg" alt="Field monitoring photo" onerror="this.style.display='none'; this.parentElement.classList.add('no-photo')">
-          <div class="no-photo-hint">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-            <span>images/field-monitoring.jpg</span>
-          </div>
-        </div>
-        <figcaption>Field monitoring</figcaption>
+        <figcaption data-i18n="galleryCaption4">Dashboard app logo / favicon</figcaption>
       </figure>
 
     </div>
 
     <div class="image-guide">
-      <strong>Photo and logo folder:</strong> put your files in <code>images/</code>. For the browser tab logo, replace <code>images/app-logo.svg</code>. For header logos, use <code>images/rua-logo.png</code> and <code>images/btc-biogas-logo.png</code>. Extra photo slots use <code>sensor-installation.jpg</code>, <code>gas-sampling.jpg</code>, <code>laboratory-test.jpg</code>, and <code>field-monitoring.jpg</code>.
+      <strong>GitHub/Firebase folder:</strong> upload these files to <code>public/images/</code>: 
+      <code>rua-logo.png</code>, <code>btc-biogas-logo.png</code>, <code>app-logo.svg</code>, 
+      <code>device-sensor-unit.jpg</code>, <code>btic-lab.jpg</code>, and <code>digester-setup.jpg</code>.
     </div>
   </section>
 
@@ -2151,11 +2114,12 @@
       loginButton: "Login",
       loginError: "Incorrect password. Please try again.",
       loginNote: "Basic access screen for the lab dashboard — not a secure authentication system. Change the password in the page source before sharing this link.",
-      galleryTitle: "Device & Facility",
-      galleryIntro: "Photos of the sensor unit and the BTIC biogas digester at FABE Laboratory. Drop your own site photos into the images/ folder using the filenames below to replace these placeholders.",
-      galleryCaption1: "Sensor unit — ESP32, RUA-Biogas-01",
-      galleryCaption2: "Small-scale biogas digester, FABE Laboratory",
-      galleryCaption3: "BTIC research team at work",
+      galleryTitle: "Project Photos & Diagrams",
+      galleryIntro: "Photos and diagrams for the IoT biogas quality monitoring system at FABE Laboratory. Keep these files in public/images/ when deploying with Firebase Hosting.",
+      galleryCaption1: "Block diagram of IoT system for biogas monitoring",
+      galleryCaption2: "Physical layout — sensor positions on biogas digester",
+      galleryCaption3: "Small-scale biogas digester setup at RUA",
+      galleryCaption4: "Dashboard app logo / favicon",
       tabDashboard: "Dashboard",
       tabHistory: "History",
       tabDevices: "Device Management",
@@ -2255,11 +2219,12 @@
       loginButton: "ចូលប្រើប្រាស់",
       loginError: "ពាក្យសម្ងាត់មិនត្រឹមត្រូវ។ សូមព្យាយាមម្តងទៀត។",
       loginNote: "នេះគ្រាន់តែជាផ្ទាំងចូលប្រើប្រាស់សាមញ្ញសម្រាប់ផ្ទាំងគ្រប់គ្រងមន្ទីរពិសោធន៍ មិនមែនជាប្រព័ន្ធផ្ទៀងផ្ទាត់សុវត្ថិភាពពិតប្រាកដទេ។ សូមផ្លាស់ប្តូរពាក្យសម្ងាត់នៅក្នុងកូដទំព័រ មុននឹងចែករំលែកតំណនេះ។",
-      galleryTitle: "ឧបករណ៍ និងទីតាំង",
-      galleryIntro: "រូបថតនៃឧបករណ៍ចាប់សញ្ញា និងឧបករណ៍រំលាយជីវឧស្ម័ន BTIC នៅមន្ទីរពិសោធន៍ FABE។ សូមដាក់រូបថតរបស់អ្នកនៅក្នុងថត images/ ដោយប្រើឈ្មោះឯកសារខាងក្រោម ដើម្បីជំនួសរូបទាំងនេះ។",
-      galleryCaption1: "ឧបករណ៍ចាប់សញ្ញា — ESP32, RUA-Biogas-01",
-      galleryCaption2: "ឧបករណ៍រំលាយជីវឧស្ម័នខ្នាតតូច មន្ទីរពិសោធន៍ FABE",
-      galleryCaption3: "ក្រុមការងារស្រាវជ្រាវ BTIC កំពុងបំពេញការងារ",
+      galleryTitle: "រូបថត និងគំនូសបង្ហាញគម្រោង",
+      galleryIntro: "រូបថត និងគំនូសបង្ហាញសម្រាប់ប្រព័ន្ធត្រួតពិនិត្យគុណភាពជីវឧស្ម័ន IoT នៅមន្ទីរពិសោធន៍ FABE។ ពេលដាក់លើ Firebase Hosting សូមរក្សាឯកសារទាំងនេះក្នុង public/images/។",
+      galleryCaption1: "គំនូសបង្ហាញប្លុកនៃប្រព័ន្ធ IoT សម្រាប់ត្រួតពិនិត្យជីវឧស្ម័ន",
+      galleryCaption2: "ប្លង់ទីតាំង — ចំណុចដាក់សេនស័រលើឧបករណ៍រំលាយជីវឧស្ម័ន",
+      galleryCaption3: "ការរៀបចំឧបករណ៍រំលាយជីវឧស្ម័នខ្នាតតូចនៅ RUA",
+      galleryCaption4: "និមិត្តសញ្ញាកម្មវិធី / favicon",
       tabDashboard: "ផ្ទាំងគ្រប់គ្រង",
       tabHistory: "ប្រវត្តិទិន្នន័យ",
       tabDevices: "គ្រប់គ្រងឧបករណ៍",
